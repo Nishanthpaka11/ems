@@ -1,8 +1,8 @@
 /* Card container */
 .correction-request.pc-card {
-  background: #ffffff;
-  max-width: 760px;               /* wider like the mock */
-  margin: 32px auto;
+ 
+  max-width: 100%;               /* wider like the mock */
+  margin: 24px auto;
   padding: 28px;
   border-radius: 16px;
   box-shadow: 0 8px 28px rgba(16, 24, 40, 0.06);

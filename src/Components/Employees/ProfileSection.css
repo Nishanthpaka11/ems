@@ -31,7 +31,7 @@
 /* Header */
 .profile-header {
   width: 100%;
-  max-width: 900px;
+  
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -128,7 +128,7 @@
 /* Card */
 .profile-card {
   width: 100%;
-  max-width: 900px;
+  
   background: var(--card-bg);
   border-radius: 16px;
   padding: 2rem;
