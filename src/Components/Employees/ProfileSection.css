@@ -1,0 +1,264 @@
+/* ===============================================
+   Modern Employee Profile Page
+   Clean, Glassmorphic + Responsive UI
+================================================== */
+
+:root {
+  --primary: #4e73df;
+  --primary-hover: #375acb;
+  --bg: #f4f6fa;
+  --text: #2e2e2e;
+  --card-bg: rgba(255, 255, 255, 0.85);
+  --border: rgba(0, 0, 0, 0.08);
+  --shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+  --success: #00b894;
+  --danger: #e74c3c;
+  --font: "Poppins", sans-serif;
+}
+
+/* Container */
+.profile-container {
+  padding: 2rem;
+  background: var(--bg);
+  min-height: 100vh;
+  font-family: var(--font);
+  color: var(--text);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* Header */
+.profile-header {
+  width: 100%;
+  max-width: 900px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: var(--card-bg);
+  backdrop-filter: blur(10px);
+  border-radius: 16px;
+  padding: 1.5rem 2rem;
+  box-shadow: var(--shadow);
+  margin-bottom: 1.5rem;
+  border: 1px solid var(--border);
+  animation: fadeIn 0.6s ease;
+}
+
+.profile-left {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.profile-avatar {
+  width: 90px;
+  height: 90px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid var(--primary);
+  box-shadow: 0 3px 10px rgba(78, 115, 223, 0.3);
+}
+
+.profile-info .profile-name {
+  margin: 0;
+  font-weight: 600;
+  font-size: 1.4rem;
+}
+
+.profile-role {
+  font-size: 0.95rem;
+  color: #6c757d;
+}
+
+/* Buttons */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  border: none;
+  border-radius: 8px;
+  padding: 0.5rem 1.1rem;
+  font-size: 0.95rem;
+  transition: all 0.2s ease;
+}
+
+.btn i {
+  font-size: 1rem;
+}
+
+.btn-edit {
+  background: var(--primary);
+  color: #fff;
+}
+
+.btn-edit:hover {
+  background: var(--primary-hover);
+}
+
+.btn-save {
+  background: var(--success);
+  color: #fff;
+}
+
+.btn-save:hover {
+  background: #019874;
+}
+
+.btn-cancel {
+  background: var(--danger);
+  color: #fff;
+}
+
+.btn-cancel:hover {
+  background: #c0392b;
+}
+
+.btn-outline {
+  background: transparent;
+  border: 1px solid var(--primary);
+  color: var(--primary);
+}
+
+.btn-outline:hover {
+  background: var(--primary);
+  color: #fff;
+}
+
+/* Card */
+.profile-card {
+  width: 100%;
+  max-width: 900px;
+  background: var(--card-bg);
+  border-radius: 16px;
+  padding: 2rem;
+  box-shadow: var(--shadow);
+  backdrop-filter: blur(10px);
+  border: 1px solid var(--border);
+  animation: slideUp 0.6s ease;
+}
+
+/* Section */
+.profile-section {
+  margin-bottom: 2rem;
+}
+
+.section-title {
+  font-weight: 600;
+  color: var(--primary);
+  margin-bottom: 1rem;
+  font-size: 1.1rem;
+}
+
+/* Fields */
+.profile-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.2rem 2rem;
+}
+
+.field label {
+  font-size: 0.9rem;
+  color: #6c757d;
+  margin-bottom: 0.2rem;
+  display: block;
+}
+
+.value {
+  font-size: 1rem;
+  color: var(--text);
+  padding: 0.3rem 0;
+  font-weight: 500;
+}
+
+/* Input fields visible only in edit mode */
+.input {
+  width: 100%;
+  border: 1px solid var(--border);
+  padding: 0.55rem 0.75rem;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  outline: none;
+  background: #fff;
+  transition: border 0.2s;
+}
+
+.input:focus {
+  border-color: var(--primary);
+}
+
+/* Alerts */
+.alert-success-modern,
+.alert-danger-modern {
+  width: 100%;
+  max-width: 900px;
+  border-radius: 10px;
+  padding: 1rem 1.5rem;
+  margin-bottom: 1rem;
+  font-weight: 500;
+  text-align: center;
+  animation: fadeIn 0.4s ease;
+}
+
+.alert-success-modern {
+  background: rgba(0, 184, 148, 0.1);
+  border: 1px solid #00b894;
+  color: #00b894;
+}
+
+.alert-danger-modern {
+  background: rgba(231, 76, 60, 0.1);
+  border: 1px solid #e74c3c;
+  color: #e74c3c;
+}
+
+/* Security Section */
+.security-section {
+  border-top: 1px dashed var(--border);
+  padding-top: 1.5rem;
+}
+
+.password-form .input {
+  margin-bottom: 0.8rem;
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .profile-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .profile-header {
+    flex-direction: column;
+    text-align: center;
+    gap: 1rem;
+  }
+
+  .profile-avatar {
+    width: 80px;
+    height: 80px;
+  }
+}

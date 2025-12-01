@@ -1,0 +1,170 @@
+.admin-summary-container {
+  max-width: 1200px;
+  margin: 40px auto;
+  padding: 20px;
+  background-color: #f8f9fa;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.admin-summary-container h2 {
+  text-align: center;
+  margin-bottom: 20px;
+  color: #333;
+}
+
+.admin-summary-container label {
+  display: block;
+  margin-bottom: 20px;
+  font-size: 16px;
+  font-weight: 500;
+  color: #444;
+}
+
+.admin-summary-container input[type="month"] {
+  padding: 8px 12px;
+  font-size: 16px;
+  margin-left: 10px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+}
+
+.summary-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+}
+
+.summary-table th,
+.summary-table td {
+  border: 1px solid #ddd;
+  padding: 12px 15px;
+  text-align: center;
+}
+
+.summary-table th {
+  background-color: #007bff;
+  color: #fff;
+  font-weight: 600;
+}
+
+.summary-table tr:nth-child(even) {
+  background-color: #f2f2f2;
+}
+
+.summary-table tr:hover {
+  background-color: #e9f5ff;
+}
+
+.summary-table input[type="number"] {
+  width: 80px;
+  padding: 5px;
+  border-radius: 4px;
+  border: 1px solid #bbb;
+}
+
+.summary-table button {
+  padding: 6px 14px;
+  font-size: 14px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  margin: 0 4px;
+  transition: background-color 0.3s;
+}
+
+.summary-table button:hover {
+  opacity: 0.9;
+}
+
+.summary-table button:focus {
+  outline: none;
+}
+
+.summary-table button:first-of-type {
+  background-color: #28a745;
+  color: white;
+}
+
+.summary-table button:last-of-type {
+  background-color: #007bff;
+  color: white;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .summary-table th,
+  .summary-table td {
+    font-size: 14px;
+    padding: 8px;
+  }
+
+  .summary-table input[type="number"] {
+    width: 60px;
+  }
+
+  .admin-summary-container {
+    padding: 15px;
+  }
+}
+.admin-summary-container {
+  padding: 20px;
+  max-width: 1200px;
+  margin: auto;
+}
+
+.admin-summary-container h2 {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.admin-summary-controls {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  margin-bottom: 20px;
+  gap: 10px;
+}
+
+.admin-summary-controls input,
+.admin-summary-controls select {
+  padding: 8px;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+  min-width: 180px;
+}
+
+.download-button {
+  padding: 8px 12px;
+  background-color: #2f80ed;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.download-button:hover {
+  background-color: #1c60c1;
+}
+
+.admin-summary-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.admin-summary-table th,
+.admin-summary-table td {
+  border: 1px solid #ddd;
+  padding: 10px;
+  text-align: center;
+}
+
+.admin-summary-table th {
+  background-color: #f0f0f0;
+}
+
+.admin-summary-table input {
+  width: 60px;
+  text-align: center;
+  padding: 5px;
+}

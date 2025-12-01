@@ -1,0 +1,126 @@
+/* Card container */
+.correction-request.pc-card {
+  background: #ffffff;
+  max-width: 760px;               /* wider like the mock */
+  margin: 32px auto;
+  padding: 28px;
+  border-radius: 16px;
+  box-shadow: 0 8px 28px rgba(16, 24, 40, 0.06);
+  border: 1px solid rgba(16, 24, 40, 0.06);
+}
+
+/* Header */
+.pc-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  margin-bottom: 18px;
+}
+
+.pc-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 999px;
+  display: grid;
+  place-items: center;
+  background: #e9f2ff;            /* soft blue circle */
+  font-size: 20px;
+  line-height: 1;
+}
+
+.pc-title {
+  margin: 0;
+  font-weight: 800;
+  font-size: 1.6rem;               /* bold headline */
+  color: #0f172a;                  /* near-navy */
+}
+
+.pc-subtitle {
+  margin: 2px 0 0 0;
+  color: #5b6473;                  /* muted */
+  font-size: 0.975rem;
+}
+
+/* Labels & fields */
+.pc-label {
+  display: block;
+  margin-bottom: 6px;
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.pc-optional {
+  color: #8b95a1;
+  font-weight: 500;
+}
+
+/* Inputs */
+.pc-input,
+.pc-textarea {
+  width: 100%;
+  border: 1px solid #d4d8e0;
+  background: #fff;
+  border-radius: 10px;
+  padding: 12px 14px;
+  font-size: 0.98rem;
+  outline: none;
+  transition: box-shadow .15s ease, border-color .15s ease;
+}
+
+.pc-input:focus,
+.pc-textarea:focus {
+  border-color: #3075e8;
+  box-shadow: 0 0 0 4px rgba(48, 117, 232, 0.15);
+}
+
+.pc-field { margin-bottom: 18px; }
+
+/* Two-column grid for times (mobile -> single) */
+.pc-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 14px;
+  margin-bottom: 6px;
+}
+@media (min-width: 640px) {
+  .pc-grid { grid-template-columns: 1fr 1fr; }
+}
+
+/* Primary button */
+.pc-actions {
+  margin-top: 8px;
+}
+.pc-btn-primary {
+  width: fit-content;
+  min-width: 240px;
+  padding: 12px 18px;
+  border: none;
+  border-radius: 12px;
+  font-weight: 700;
+  font-size: 1rem;
+  background: #155bd6;           /* deep brand blue */
+  color: #fff;
+  cursor: pointer;
+  transition: transform .04s ease, box-shadow .15s ease, background .15s ease;
+  box-shadow: 0 6px 16px rgba(21, 91, 214, 0.25);
+}
+.pc-btn-primary:hover { background: #0f4ab0; }
+.pc-btn-primary:active { transform: translateY(1px); }
+.pc-btn-primary:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+/* Status message */
+.status-message.pc-status {
+  margin-top: 14px;
+  font-weight: 600;
+}
+.status-message.pc-status::before {
+  content: '';
+}
+
+/* Keep backward compatibility with your old base rules */
+.correction-request h3 { display:none; }  /* old header hidden in new layout */
+.correction-request label { font-weight: inherit; }

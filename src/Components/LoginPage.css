@@ -1,0 +1,172 @@
+/* Clear, scalable logo sizing */
+.isar-logo {
+  width: clamp(72px, 10vw, 120px);
+  height: auto;
+  display: block;
+}
+
+/* === Base layout === */
+.isar-login {
+  background: #fff;
+  min-height: 100vh;
+  min-height: 100dvh;
+  position: relative;
+}
+
+/* === Left Section === */
+.welcome-col {
+  position: relative;
+}
+
+.isar-logo {
+    width: 195px;
+    height: 149px;
+  display: block;
+  margin: 0 0 12px 2px;
+}
+
+/* FIX 1: New wrapper for "Hi!" and illustration */
+.hi-wrapper {
+  display: flex;
+  align-items: flex-end; /* Aligns "Hi!" text to the bottom of the group */
+  gap: 16px; /* Space between "Hi!" and the image */
+}
+
+/* FIX 2: Added styles just for the "Hi!" text */
+.welcome-hi {
+  font-weight: 800;
+  line-height: 1;
+  margin: 0;
+  font-size: clamp(46px, 10vw, 110px); /* Sized to match image */
+  color: #1a1a1a;
+  flex-shrink: 0; /* Prevents "Hi!" from being squished */
+}
+
+/* "Welcome" text is now separate */
+.welcome-title {
+  font-weight: 800;
+  line-height: 0.92;
+  margin: 0;
+  font-size: clamp(52px, 12vw, 128px); /* Kept original large size */
+  color: #1a1a1a;
+}
+
+.welcome-sub {
+  margin: 10px 0 0;
+  color: #7b7f84;
+  font-weight: 600;
+  font-size: clamp(16px, 2vw, 24px);
+}
+
+/* Illustration */
+.welcome-illustration {
+  display: block;
+  width: 100%; /* Will fill remaining flex space */
+  max-width: 450px; /* Adjust as needed to fit */
+  height: auto;
+  object-fit: contain;
+}
+
+/* === Login Card (Right Section) === */
+.login-card {
+  width: 100%;
+  max-width: 520px;
+  background: #fff;
+  border-radius: 12px;
+  padding: clamp(20px, 4vw, 32px);
+  box-shadow: none;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.brand-name {
+  font-weight: 900;
+  color: #2a3ea8;
+  letter-spacing: 0.02em;
+  font-size: clamp(24px, 3.5vw, 40px);
+  line-height: 1;
+}
+
+.brand-sub {
+  color: #1c1f24;
+  font-size: clamp(14px, 2.4vw, 22px);
+}
+
+.field-label {
+  letter-spacing: 0.06em;
+  font-weight: 600;
+  color: #232529;
+}
+
+.field-line {
+  border: 0;
+  border-bottom: 2px solid #232529;
+  border-radius: 0;
+  padding: 8px 0;
+  background: transparent;
+  font-size: 16px;
+}
+
+.field-line:focus {
+  outline: none;
+  box-shadow: none;
+  border-bottom-color: #2a3ea8;
+}
+
+.btn-login {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  font-size: clamp(16px, 2.2vw, 22px);
+  padding: 14px 18px;
+  border-radius: 999px;
+  border: 0;
+  background: linear-gradient(180deg, #2f58ff 0%, #152c78 100%);
+  color: #fff;
+  box-shadow: none;
+}
+
+.btn-login:active {
+  transform: translateY(1px);
+}
+
+.login-icon {
+  font-size: 1.1em;
+  filter: drop-shadow(0 0 1px rgba(0, 0, 0, 0.25));
+}
+
+/* === Responsive === */
+@media (max-width: 991.98px) {
+  .welcome-col {
+    text-align: center;
+  }
+
+  /* FIX 4: On mobile, stack "Hi!" and the illustration vertically */
+  .hi-wrapper {
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .isar-logo {
+    margin: 0 auto 8px;
+  }
+
+  .welcome-illustration {
+    max-width: 480px;
+    margin: 8px auto 0; /* Re-add auto margin for centering */
+  }
+
+  .login-card {
+    margin: 18px auto 0;
+    max-width: 420px;
+  }
+}
+
+@media (min-width: 992px) {
+  .login-card {
+    margin-top: clamp(28px, 4vh, 64px);
+  }
+}

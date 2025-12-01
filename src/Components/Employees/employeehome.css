@@ -1,0 +1,146 @@
+/* Overall Layout */
+.employee-dashboard {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #f4f7fc, #eaf1ff);
+  font-family: 'Poppins', sans-serif;
+}
+
+/* Header */
+.dashboard-header {
+  background: linear-gradient(90deg, #0052d4, #4364f7, #6fb1fc);
+  color: white;
+  padding: 1.2rem 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom-left-radius: 20px;
+  border-bottom-right-radius: 20px;
+}
+
+.clock-display {
+  font-size: 1.2rem;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+}
+
+/* Info Cards */
+.info-card {
+  border-radius: 16px;
+  text-align: center;
+  padding: 1.5rem;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  transition: transform 0.25s ease-in-out, box-shadow 0.25s ease-in-out;
+}
+
+.info-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+}
+
+.info-card .icon-lg {
+  font-size: 2rem;
+  margin-bottom: 0.5rem;
+}
+
+/* Gradient Backgrounds */
+.gradient-blue {
+  background: linear-gradient(135deg, #007bff, #00c6ff);
+}
+
+.gradient-green {
+  background: linear-gradient(135deg, #5060d6, #8fa6cd);
+}
+
+/* WiFi card dynamic color */
+.wifi-allowed {
+  background: linear-gradient(135deg, #28a745, #5cd65c);
+  transition: background 0.4s ease-in-out;
+}
+
+.wifi-restricted {
+  background: linear-gradient(135deg, #dc3545, #ff6b6b);
+  transition: background 0.4s ease-in-out;
+}
+
+/* Dashboard Card */
+.dashboard-card {
+  background: #ffffff;
+  border-radius: 20px;
+  padding: 2rem;
+  margin-top: 1rem;
+  transition: all 0.3s ease;
+}
+
+.dashboard-card:hover {
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+}
+
+/* Punch Buttons */
+/* Punch Buttons */
+.punch-btn {
+  font-size: 1rem;
+  font-weight: 600;
+  border-radius: 10px;
+  background-color: #db0c0c;
+  padding: 0.7rem 1.5rem;
+  transition: all 0.2s ease-in-out;
+}
+.punch-btns {
+  font-size: 1rem;
+  font-weight: 600;
+  border-radius: 10px;
+
+  padding: 0.7rem 1.5rem;
+  transition: all 0.2s ease-in-out;
+}
+
+/* Hover effect */
+.punch-btn:hover {
+  transform: scale(1.04);
+}
+
+/* 🖥️ Smaller buttons on desktop screens */
+@media (min-width: 992px) {
+  .punch-btn {
+    font-size: 0.85rem;      /* slightly smaller text */
+    padding: 0.4rem 1rem;    /* smaller height */
+    min-width: 100px;        /* keeps consistent width */
+  }
+}
+
+/* 📱 Larger, touch-friendly buttons on mobile */
+@media (max-width: 991px) {
+  .punch-btn {
+    font-size: 1rem;
+    padding: 0.7rem 1.4rem;
+  }
+}
+
+
+/* Button spacing */
+.d-flex.gap-3.mt-4 .btn {
+  min-width: 120px;
+}
+
+/* Photo Upload Section */
+.photo-section {
+  margin-top: 1rem;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .dashboard-header {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .info-card {
+    padding: 1rem;
+  }
+
+  .punch-btn {
+    font-size: 0.85rem;
+    padding: 0.45rem 0.9rem;
+  }
+}
