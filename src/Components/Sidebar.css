@@ -8,8 +8,8 @@
   top: 0;
   height: 100vh;
   width: 260px;
-  background: linear-gradient(180deg, #000000 0%, #c9c9c9 100%);
-  color: white;
+  background: linear-gradient(180deg, #ffffff 0%, #ffffff 100%);
+  color: rgb(0, 0, 0);
   display: flex;
   flex-direction: column;
   z-index: 1000;
@@ -21,35 +21,36 @@
 .sidebar-header {
   padding: var(--space-24) var(--space-20);
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  margin-top: 23px;
 }
 
 .brand {
   display: flex;
   align-items: center;
-  gap: var(--space-12);
+  gap: 12px;
   font-size: 24px;
   font-weight: 800;
-  color: white;
+  color: rgb(0, 0, 0);
   margin-bottom: var(--space-12);
   letter-spacing: -0.5px;
 }
 
 .brand i {
   font-size: 28px;
-  color: #38bdf8;
+  color: #0393d0;
 }
 
 .role-badge {
   display: inline-flex;
   align-items: center;
-  gap: var(--space-8);
+  gap:12px;
   padding: var(--space-6) var(--space-16);
-  background: rgba(56, 189, 248, 0.15);
-  border: 1px solid rgba(56, 189, 248, 0.3);
+  background: rgba(255, 255, 255, 0.15);
+
   border-radius: var(--radius-full);
   font-size: var(--font-size-xs);
   font-weight: var(--font-weight-bold);
-  color: #38bdf8;
+  color: #000000;
   letter-spacing: 0.5px;
 }
 
@@ -79,7 +80,7 @@
   align-items: center;
   gap: var(--space-12);
   padding: var(--space-14) var(--space-20);
-  color: rgba(255, 255, 255, 0.8);
+  color: rgba(0, 0, 0, 0.8);
   text-decoration: none;
   font-size: var(--font-size-base);
   font-weight: var(--font-weight-medium);
@@ -101,13 +102,13 @@
 
 .nav-link:hover {
   background: rgba(56, 189, 248, 0.1);
-  color: white;
+  color: rgb(0, 0, 0);
   padding-left: var(--space-24);
 }
 
 .nav-link.active {
   background: rgba(56, 189, 248, 0.15);
-  color: #38bdf8;
+  color: #000000;
   border-left-color: #38bdf8;
   font-weight: var(--font-weight-bold);
 }
@@ -128,6 +129,7 @@
   justify-content: center;
   gap: var(--space-10);
   width: 100%;
+  height:40px;
   padding: var(--space-12) var(--space-20);
   background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
   border: none;
