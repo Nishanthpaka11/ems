@@ -9,7 +9,7 @@
 }
 
 /* Page */
-.leave-page{min-height:100%; padding:28px; background:var(--bg); font-family:var(--font); color:var(--text);}
+.leave-page{min-height:100%; padding:28px; background:white; font-family:var(--font); color:black;}
 
 /* Entrance */
 .animate-page-in{animation: fadeIn .38s ease-out both;}

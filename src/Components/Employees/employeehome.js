@@ -336,7 +336,7 @@ function EmployeeHome() {
             </p>
           )}
 
-          <div className="d-flex gap-3 mt-4">
+          <div className="btn">
             <button
               className="btn btn-success flex-fill punch-btns"
               onClick={handlePunchIn}

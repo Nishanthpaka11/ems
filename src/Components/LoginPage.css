@@ -62,7 +62,7 @@
 .welcome-illustration {
   display: block;
   width: 100%; /* Will fill remaining flex space */
-  max-width: 450px; /* Adjust as needed to fit */
+  max-width: 400px; /* Adjust as needed to fit */
   height: auto;
   object-fit: contain;
 }
@@ -76,6 +76,8 @@
   padding: clamp(20px, 4vw, 32px);
   box-shadow: none;
   border: 1px solid rgba(0, 0, 0, 0.1);
+  margin-left: 40px;
+  height: 560px;
 }
 
 .brand-name {
