@@ -21,6 +21,14 @@ const Sidebar = ({ userRole = 'employee' }) => {
     setOpen(false);
   };
 
+  // read user from localStorage safely
+  let storedUser = null;
+  try {
+    storedUser = JSON.parse(localStorage.getItem('user')) || null;
+  } catch (e) {
+    storedUser = null;
+  }
+
   const navLinks = userRole === 'admin'
     ? [
         { 
@@ -115,11 +123,28 @@ const Sidebar = ({ userRole = 'employee' }) => {
             <i className="bi bi-building"></i>
             <span>ISAR EMS</span>
           </div>
-          <div className="role-badge">
-            <i className={userRole === 'admin' ? 'bi bi-shield-check' : 'bi bi-person-badge'}></i>
-            {userRole === 'admin' ? 'ADMIN' : 'EMPLOYEE'}
+          
+        </div>
+
+        {/* ====== USER PROFILE SECTION (added) ====== */}
+        <div className="sidebar-user" onClick={() => { closeSidebar(); navigate(userRole === 'admin' ? '/admin-dashboard/employeeprofileviewer' : '/employee-dashboard/profile'); }}>
+          <img
+            src={
+              (storedUser && (storedUser.profilePic || storedUser.avatar || storedUser.photo))
+                ? (storedUser.profilePic || storedUser.avatar || storedUser.photo)
+                : '/default-avatar.png'
+            }
+            alt="User Avatar"
+            className="user-avatar"
+            onError={(e) => { e.target.onerror = null; e.target.src = '/default-avatar.png'; }}
+          />
+
+          <div className="user-info">
+            <h4 className="user-name">{(storedUser && (storedUser.fullName || storedUser.name)) ? (storedUser.fullName || storedUser.name) : 'Employee Name'}</h4>
+            <p className="user-role">{userRole === 'admin' ? 'Administrator' : 'Employee'}</p>
           </div>
         </div>
+        {/* ====== end USER PROFILE SECTION ====== */}
 
         <nav className="sidebar-nav">
           <ul>

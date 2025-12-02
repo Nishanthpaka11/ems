@@ -322,3 +322,60 @@ html, body {
     transform: translateY(-3px);
   }
 }
+
+
+/* -------------------------------
+   Sidebar: User profile block
+   ------------------------------- */
+.sidebar-user {
+  margin: 12px 14px;
+  padding: 10px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background 150ms ease, transform 150ms ease;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255,255,255,0.04);
+}
+
+.sidebar-user:hover {
+  background: rgba(255, 255, 255, 0.05);
+  transform: translateY(-2px);
+}
+
+.user-avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+  border: 1px solid rgba(255,255,255,0.08);
+  box-shadow: 0 2px 6px rgba(0,0,0,0.25);
+}
+
+.user-info {
+  display: flex;
+  flex-direction: column;
+  line-height: 1;
+  overflow: hidden;
+}
+
+.user-name {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: #ffffff;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+}
+
+.user-role {
+  margin: 0;
+  font-size: 11px;
+  color: #d6d6d6;
+  opacity: 0.85;
+  margin-top: 4px;
+}
