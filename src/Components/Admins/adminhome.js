@@ -1,9 +1,12 @@
-import { useEffect, useState, useCallback } from 'react';
+// AdminDashboard.jsx
+import { useEffect, useState, useCallback, useMemo } from 'react';
 import './adminhome.css';
 import { useNavigate } from 'react-router-dom';
 import { authFetch } from '../utils/authFetch';
+// keep: import 'bootstrap-icons/font/bootstrap-icons.css' in src/index.js
 
 const AdminDashboard = () => {
+  // ========== Data state (UNCHANGED) ==========
   const [records, setRecords] = useState([]);
   const [filtered, setFiltered] = useState([]);
   const [search, setSearch] = useState('');
@@ -18,6 +21,7 @@ const AdminDashboard = () => {
   const navigate = useNavigate();
   const API_BASE = process.env.REACT_APP_API_URL;
 
+  // ========== Network (UNCHANGED) ==========
   const fetchRecords = useCallback(async () => {
     try {
       const res = await authFetch(`${API_BASE}/api/attendance/attendance-records`, {
@@ -59,9 +63,10 @@ const AdminDashboard = () => {
   useEffect(() => {
     let result = records;
     if (search) {
+      const q = search.toLowerCase();
       result = result.filter((record) =>
-        record.employee_name?.toLowerCase().includes(search.toLowerCase()) ||
-        record.employee_id?.toLowerCase().includes(search.toLowerCase())
+        record.employee_name?.toLowerCase().includes(q) ||
+        record.employee_id?.toLowerCase().includes(q)
       );
     }
     if (selectedDate) {
@@ -70,6 +75,7 @@ const AdminDashboard = () => {
     setFiltered(result);
   }, [search, selectedDate, records]);
 
+  // ========== Metrics (UNCHANGED) ==========
   const today = new Date().toISOString().split('T')[0];
   const totalEmployees = employees.length;
 
@@ -85,6 +91,7 @@ const AdminDashboard = () => {
     return punchOutDate === today;
   }).length;
 
+  // ========== Actions (UNCHANGED) ==========
   const handleExportCSV = () => {
     const csvRows = [
       ['Emp ID', 'Name', 'IP', 'Date', 'Punch In', 'Punch Out'],
@@ -158,109 +165,169 @@ const AdminDashboard = () => {
     }
   };
 
+  // ========== Simple derived helpers ==========
+  const recordsCount = filtered.length;
+  const earliestRow = useMemo(() => (filtered[0] ? filtered[0].date : ''), [filtered]);
+
+  // ========== Render (minimal, clear) ==========
   return (
-    <div className="admin-dashboard">
-      <div className="dashboard-header">
-        <h2>Welcome, {adminName} 👋</h2>
-      </div>
+    <div className="clean-shell">
+      {/* TOPBAR */}
+      <header className="clean-topbar">
+        <div className="brand">
+          <div className="brand-name">Company Admin</div>
+          <div className="brand-sub">Welcome, {adminName}</div>
+        </div>
 
-      <div className="admin-stats">
-        <div className="stat-card"><h4>Total Employees</h4><p>{totalEmployees}</p></div>
-        <div className="stat-card"><h4>Today's Punch-ins</h4><p>{todayPunchIns}</p></div>
-        <div className="stat-card"><h4>Today's Punch-outs</h4><p>{todayPunchOuts}</p></div>
-      </div>
+        <div className="top-actions">
+          <div className="search">
+            <i className="bi bi-search" aria-hidden="true" />
+            <input
+              aria-label="Search by name or ID"
+              placeholder="Search name or ID"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
+          </div>
 
-      <div className="filter-bar">
-        <input type="text" placeholder="Search by name or ID" value={search} onChange={(e) => setSearch(e.target.value)} />
-        <input type="date" value={selectedDate} onChange={(e) => setSelectedDate(e.target.value)} />
-        <button onClick={handleExportCSV}>Export CSV</button>
-      </div>
+          <button className="clean-btn" onClick={handleExportCSV}>
+            <i className="bi bi-download" /> Export
+          </button>
+        </div>
+      </header>
 
-      {error && <p className="error-msg">{error}</p>}
+      {/* STATS */}
+      <section className="clean-stats">
+        <div className="stat">
+          <div className="stat-title">Total employees</div>
+          <div className="stat-value">{totalEmployees}</div>
+        </div>
 
-      <h3>Employees</h3>
-      <button onClick={toggleEmployees} className="toggle-btn">
-        {showEmployees ? 'Hide Employees' : 'Show Employees'}
-      </button>
+        <div className="stat">
+          <div className="stat-title">Today's punch-ins</div>
+          <div className="stat-value">{todayPunchIns}</div>
+        </div>
 
-      {showEmployees && (
-        <>
-          {/* Removed Add Employee form */}
+        <div className="stat">
+          <div className="stat-title">Today's punch-outs</div>
+          <div className="stat-value">{todayPunchOuts}</div>
+        </div>
+      </section>
 
-          <ul className="employee-list">
+      {/* FILTERS */}
+      <section className="clean-filters">
+        <label className="frow">
+          <span>Date</span>
+          <input type="date" value={selectedDate} onChange={(e) => setSelectedDate(e.target.value)} />
+        </label>
+
+        <div className="frow">
+          <button className="link" onClick={toggleEmployees}>
+            {showEmployees ? 'Hide Employees' : 'Show Employees'}
+          </button>
+          <button className="link" onClick={() => fetchRecords()}>Refresh</button>
+        </div>
+      </section>
+
+      {/* ERROR */}
+      {error && <div className="clean-error">{error}</div>}
+
+      {/* EMPLOYEES (simple list) */}
+      <section className="clean-panel">
+        <div className="panel-head">
+          <h3>Employees</h3>
+          <div className="panel-meta">{employees.length} total</div>
+        </div>
+
+        {showEmployees ? (
+          <ul className="emp-list">
             {employees.map(emp => (
-              <li key={emp._id}>
-                <strong>{emp.name}</strong> ({emp.email})<br />
-                Position: {emp.position || 'N/A'} | Role: {emp.role || 'N/A'}<br />
-                Leave Quota:
-                <input
-                  type="number"
-                  value={emp.leave_quota || 0}
-                  onChange={(e) => {
-                    const updatedQuota = parseInt(e.target.value, 10);
-                    setEmployees(prev =>
-                      prev.map(u =>
-                        u._id === emp._id ? { ...u, leave_quota: updatedQuota } : u
-                      )
-                    );
-                  }}
-                  style={{ width: '60px', margin: '0 10px' }}
-                />
-                <button onClick={() => updateLeaveQuota(emp._id, emp.leave_quota)}>Save</button>
-                <button onClick={() => handleDeleteEmployee(emp._id)}>Delete</button>
+              <li key={emp._id} className="emp-row">
+                <div className="emp-left">
+                  <div className="avatar">{emp.name?.charAt(0).toUpperCase()}</div>
+                  <div className="emp-info">
+                    <div className="emp-name">{emp.name}</div>
+                    <div className="emp-email">{emp.email}</div>
+                    <div className="emp-meta">Position: {emp.position || 'N/A'} • Role: {emp.role || 'N/A'}</div>
+                  </div>
+                </div>
+
+                <div className="emp-actions">
+                  <label className="small">Leave</label>
+                  <input
+                    type="number"
+                    value={emp.leave_quota || 0}
+                    onChange={(e) => {
+                      const updatedQuota = parseInt(e.target.value || '0', 10);
+                      setEmployees(prev => prev.map(u => u._id === emp._id ? { ...u, leave_quota: updatedQuota } : u));
+                    }}
+                  />
+                  <button className="icon-only" title="Save" onClick={() => updateLeaveQuota(emp._id, emp.leave_quota)}>
+                    <i className="bi bi-check-lg" />
+                  </button>
+                  <button className="icon-only danger" title="Delete" onClick={() => handleDeleteEmployee(emp._id)}>
+                    <i className="bi bi-trash" />
+                  </button>
+                </div>
               </li>
             ))}
           </ul>
-        </>
-      )}
+        ) : (
+          <div className="muted">Employees hidden — click "Show Employees" to view.</div>
+        )}
+      </section>
 
-      <h3>Attendance</h3>
-      {filtered.length === 0 ? (
-        <p>No records found.</p>
-      ) : (
-        <div className="responsive-table-wrapper">
-          <table>
-            <thead>
-              <tr>
-                <th>Name (Emp ID)</th>
-                <th>IP</th>
-                <th>Date</th>
-                <th>Punch In</th>
-                <th>Punch Out</th>
-                <th>Selfie</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filtered.map((record) => (
-                <tr key={record.id}>
-                  <td data-label="Name">
-                    {record.employee_name} <br />
-                    <small>{record.employee_id}</small>
-                  </td>
-                  <td data-label="IP">{record.ip}</td>
-                  <td data-label="Date">
-                    {record.date ? new Date(record.date).toLocaleDateString('en-IN', {
-                      weekday: 'short',
-                      day: '2-digit',
-                      month: 'short',
-                      year: 'numeric'
-                    }) : '-'}
-                  </td>
-                  <td data-label="Punch In">{record.punch_in_time ? new Date(record.punch_in_time).toLocaleTimeString() : '-'}</td>
-                  <td data-label="Punch Out">{record.punch_out_time ? new Date(record.punch_out_time).toLocaleTimeString() : '-'}</td>
-                  <td data-label="Selfie">
-                    {record.photo_path ? (
-                      <button onClick={() => handleViewPhoto(record.id)}>View</button>
-                    ) : (
-                      'No Image'
-                    )}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+      {/* ATTENDANCE */}
+      <section className="clean-panel">
+        <div className="panel-head">
+          <h3>Attendance</h3>
+          <div className="panel-meta">{recordsCount} records</div>
         </div>
-      )}
+
+        {filtered.length === 0 ? (
+          <div className="muted">No records found.</div>
+        ) : (
+          <div className="table-wrap">
+            <table className="clean-table">
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>IP</th>
+                  <th>Date</th>
+                  <th>Punch In</th>
+                  <th>Punch Out</th>
+                  <th>Selfie</th>
+                </tr>
+              </thead>
+              <tbody>
+                {filtered.map(record => (
+                  <tr key={record.id}>
+                    <td>
+                      <div className="name">{record.employee_name}</div>
+                      <div className="muted tiny">{record.employee_id}</div>
+                    </td>
+                    <td className="mono">{record.ip}</td>
+                    <td>{record.date ? new Date(record.date).toLocaleDateString('en-IN', { weekday:'short', day:'2-digit', month:'short', year:'numeric' }) : '-'}</td>
+                    <td>{record.punch_in_time ? new Date(record.punch_in_time).toLocaleTimeString() : '-'}</td>
+                    <td>{record.punch_out_time ? new Date(record.punch_out_time).toLocaleTimeString() : '-'}</td>
+                    <td>
+                      {record.photo_path ? (
+                        <button className="clean-link" onClick={() => handleViewPhoto(record.id)}><i className="bi bi-camera" /> View</button>
+                      ) : (
+                        <span className="muted tiny">No Image</span>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </section>
+
+      <footer className="clean-footer">
+        <div className="muted tiny">Built for clarity • {earliestRow ? `First record: ${earliestRow}` : ''}</div>
+      </footer>
     </div>
   );
 };

@@ -3,6 +3,9 @@ import reportWebVitals from './reportWebVitals';
 import ReactDOM from 'react-dom/client';
 import App from './App';
 import 'bootstrap/dist/css/bootstrap.min.css';
+// in src/index.js
+import 'bootstrap-icons/font/bootstrap-icons.css';
+
 
 import './index.css';
 import { Helmet } from 'react-helmet';
