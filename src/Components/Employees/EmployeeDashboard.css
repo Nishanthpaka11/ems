@@ -102,15 +102,19 @@ body {
 .topbar-title { font-weight: 700; }
 
 /* Main content area */
+/* Main content area */
 .emp-content {
-  margin-left:250px;
+  margin-left: var(--sidebar-width);
   width: calc(100% - var(--sidebar-width));
   padding: 24px;
-  transition: margin-left 220ms ease;
-  min-height: 100vh;
   box-sizing: border-box;
   background: linear-gradient(180deg, #fbfdff, #eef6ff);
+
+  /* 👇 KEY PART: content area scrolls independently */
+  height: 100vh;
+  overflow-y: auto;
 }
+
 
 /* Small screens: sidebar becomes off-canvas and topbar shows */
 @media (max-width: 767.98px) {

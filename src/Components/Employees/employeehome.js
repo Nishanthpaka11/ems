@@ -20,6 +20,7 @@ function EmployeeHome() {
   const [wifiAllowed, setWifiAllowed] = useState(false);
   const [photo, setPhoto] = useState(null);
   const [workDuration, setWorkDuration] = useState('00h 00m 00s');
+  const [attendanceByDate, setAttendanceByDate] = useState({}); // 💾 map of date -> punched_in
 
   useEffect(() => {
     if (!token || !user) navigate('/');
@@ -40,6 +41,23 @@ function EmployeeHome() {
     } catch (err) {
       console.error('Status fetch failed:', err);
       setError('Unable to fetch status. Please login again.');
+    }
+  }, [API_BASE]);
+
+  const fetchAttendanceHistory = useCallback(async () => {
+    try {
+      // ⚠️ Adjust this endpoint/response format as per your backend
+      const res = await authFetch(`${API_BASE}/api/attendance/history`);
+      if (!res) return;
+      const data = await res.json();
+      // expected: [{ date: '2025-12-01', punched_in: true }, ...]
+      const mapped = {};
+      data.forEach((item) => {
+        mapped[item.date] = item.punched_in;
+      });
+      setAttendanceByDate(mapped);
+    } catch (err) {
+      console.error('Attendance history fetch failed:', err);
     }
   }, [API_BASE]);
 
@@ -69,9 +87,11 @@ function EmployeeHome() {
   useEffect(() => {
     fetchStatus();
     verifyIPs();
+    fetchAttendanceHistory();
+
     const interval = setInterval(fetchStatus, 10000);
     return () => clearInterval(interval);
-  }, [fetchStatus, verifyIPs]);
+  }, [fetchStatus, verifyIPs, fetchAttendanceHistory]);
 
   useEffect(() => {
     let interval = null;
@@ -136,6 +156,7 @@ function EmployeeHome() {
       const data = await res.json();
       alert(`✅ ${data.message}`);
       fetchStatus();
+      fetchAttendanceHistory();
       setPhoto(null);
     } catch (err) {
       console.error('Punch In error:', err);
@@ -171,6 +192,7 @@ function EmployeeHome() {
       const data = await res.json();
       alert(`✅ ${data.message}`);
       fetchStatus();
+      fetchAttendanceHistory();
     } catch (err) {
       console.error('Punch Out error:', err);
       alert('❌ Punch Out failed');
@@ -205,6 +227,28 @@ function EmployeeHome() {
     }
   };
 
+  // 🗓️ Build calendar for the current month
+  const getCurrentMonthCalendar = () => {
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = today.getMonth(); // 0-based
+
+    const firstDay = new Date(year, month, 1);
+    const lastDay = new Date(year, month + 1, 0);
+
+    const days = [];
+    for (let d = 1; d <= lastDay.getDate(); d++) {
+      const date = new Date(year, month, d);
+      const isoKey = date.toISOString().slice(0, 10); // yyyy-mm-dd
+      const punchedIn = attendanceByDate[isoKey] === true;
+      days.push({ date, isoKey, punchedIn });
+    }
+
+    const startWeekday = firstDay.getDay(); // 0 = Sunday
+
+    return { year, month, days, startWeekday };
+  };
+
   return (
     <motion.div
       className="employee-dashboard"
@@ -220,6 +264,8 @@ function EmployeeHome() {
         animate={{ opacity: 1 }}
         transition={{ delay: 0.4, duration: 0.6 }}
       >
+        <p className="live-clock">🕒 {clock.toLocaleTimeString()}</p>
+
         {/* Info Cards */}
         <motion.div
           className="row g-4 mb-4"
@@ -289,7 +335,6 @@ function EmployeeHome() {
           animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: 0.5, duration: 0.6 }}
         >
-          {/* (everything inside unchanged) */}
           <p>
             <strong>Your IP(s):</strong> {ip || 'Fetching...'}
           </p>
@@ -369,6 +414,58 @@ function EmployeeHome() {
             >
               Leave CSV
             </button>
+          </div>
+
+          {/* 🗓️ Attendance Calendar */}
+          <div className="attendance-calendar mt-4">
+            {(() => {
+              const { year, month, days, startWeekday } = getCurrentMonthCalendar();
+              const monthName = new Date(year, month).toLocaleString('default', {
+                month: 'long',
+              });
+
+              const weekDays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+
+              return (
+                <>
+                  <h5 className="fw-bold mb-3 text-secondary">
+                    Attendance Calendar – {monthName} {year}
+                  </h5>
+
+                  <div className="calendar-header d-flex mb-2">
+                    {weekDays.map((d) => (
+                      <div key={d} className="calendar-cell calendar-header-cell">
+                        {d}
+                      </div>
+                    ))}
+                  </div>
+
+                  <div className="calendar-grid">
+                    {/* Empty cells before first day */}
+                    {Array.from({ length: startWeekday }).map((_, idx) => (
+                      <div key={`empty-${idx}`} className="calendar-cell empty-cell" />
+                    ))}
+
+                    {/* Actual days */}
+                    {days.map(({ date, isoKey, punchedIn }) => (
+                      <div
+                        key={isoKey}
+                        className={`calendar-cell day-cell ${
+                          punchedIn ? 'day-present' : 'day-absent'
+                        }`}
+                      >
+                        <span className="day-number">{date.getDate()}</span>
+                      </div>
+                    ))}
+                  </div>
+
+                  <div className="calendar-legend mt-2">
+                    <span className="legend-box day-present" /> Punched In
+                    <span className="legend-box day-absent ms-3" /> Not Punched In
+                  </div>
+                </>
+              );
+            })()}
           </div>
 
           {error && <p className="text-danger mt-3">{error}</p>}

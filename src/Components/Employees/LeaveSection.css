@@ -47,7 +47,7 @@ input:focus, select:focus{outline: none; border-color: var(--primary); box-shado
 .tone-danger .stat-value{color:var(--danger);}
 
 /* Panels */
-.panel{background:var(--surface); border:1px solid var(--ring); border-radius:var(--radius); box-shadow:var(--shadow); overflow:hidden; margin-bottom:18px;}
+.panel{background:var(--surface); border:1px solid var(--ring); border-radius:var(--radius); box-shadow:var(--shadow); overflow:auto; margin-bottom:18px;}
 .panel-header{display:flex; align-items:center; justify-content:space-between; padding:14px 16px; background:var(--surface-2); border-bottom:1px solid var(--ring);}
 .panel-header h3{margin:0; font-size:16px; font-weight:700;}
 .toolbar{display:flex; align-items:center; gap:10px;}
