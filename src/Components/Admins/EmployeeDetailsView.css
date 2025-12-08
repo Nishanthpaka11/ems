@@ -112,6 +112,23 @@
     ),
     #ffffff;
 }
+.profile-head {
+
+  padding: 20px 24px 18px;
+
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 18px;
+  align-items: center;
+  border-bottom: 1px solid #e5e7eb;
+  background: linear-gradient(
+      135deg,
+      rgba(37, 99, 235, 0.06),
+      rgba(96, 165, 250, 0.12)
+    ),
+    #ffffff;
+}
 
 /* Photo */
 .profile-photo-wrapper {

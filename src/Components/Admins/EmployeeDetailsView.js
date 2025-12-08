@@ -247,7 +247,7 @@ const EmployeeDetailsView = () => {
 
       <div className="employee-details-card">
         {/* Profile Header Section */}
-        <div className="profile-header">
+        <div className="profile-head">
           <div className="profile-photo-wrapper">
             <div className="profile-photo-large">
               {(editedData.photo || employee.photo) ? (
