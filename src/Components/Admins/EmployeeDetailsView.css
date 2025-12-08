@@ -442,44 +442,44 @@
   grid-column: 1 / -1;
 }
 
-/* Icons */
+/* Icons – neutral, professional style */
 .detail-icon {
   width: 40px;
   height: 40px;
-  border-radius: 12px;
+  border-radius: 999px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  color: white;
-  font-size: 1.2rem;
+
+  font-size: 1.1rem;
+  background: #f3f4f6;
+  border: 1px solid #e5e7eb;
+  color: #4b5563;
+
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.06);
+  transition: background 0.15s ease, border-color 0.15s ease,
+              color 0.15s ease, transform 0.15s ease;
 }
 
-.detail-icon-id {
-  background: linear-gradient(135deg, #6b7280, #4b5563);
-}
-
-.detail-icon-email {
-  background: linear-gradient(135deg, #6366f1, #4f46e5);
-}
-
-.detail-icon-phone {
-  background: linear-gradient(135deg, #10b981, #059669);
-}
-
-.detail-icon-position {
-  background: linear-gradient(135deg, #ec4899, #db2777);
-}
-
-.detail-icon-address {
-  background: linear-gradient(135deg, #f59e0b, #d97706);
-}
-
-.detail-icon-home {
-  background: linear-gradient(135deg, #3b82f6, #2563eb);
-}
-
+/* Keep class names but make them all the same neutral style */
+.detail-icon-id,
+.detail-icon-email,
+.detail-icon-phone,
+.detail-icon-position,
+.detail-icon-address,
+.detail-icon-home,
 .detail-icon-aadhar {
-  background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+  background: #f3f4f6;
+  border-color: #e5e7eb;
+  color: #4b5563;
+}
+
+/* Slight emphasis on hover via parent card */
+.detail-card:hover .detail-icon {
+  background: #e5e7eb;
+  border-color: #d1d5db;
+  color: #111827;
+  transform: translateY(-1px);
 }
 
 /* Text */
