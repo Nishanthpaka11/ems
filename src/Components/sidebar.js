@@ -34,7 +34,8 @@ const Sidebar = ({ userRole = 'employee' }) => {
         { 
           label: 'Home', 
           path: '/admin-dashboard', 
-          icon: 'bi-house-door-fill' 
+          icon: 'bi-house-door-fill',
+          end:true 
         },
         { 
           label: 'Employee Viewer', 
@@ -76,7 +77,8 @@ const Sidebar = ({ userRole = 'employee' }) => {
         { 
           label: 'Home', 
           path: '/employee-dashboard', 
-          icon: 'bi-house-door-fill' 
+          icon: 'bi-house-door-fill' ,
+          end:true
         },
         { 
           label: 'Profile', 
@@ -152,6 +154,7 @@ const Sidebar = ({ userRole = 'employee' }) => {
               <li key={link.path}>
                 <NavLink
                   to={link.path}
+                  end={link.end}
                   className={({ isActive }) => isActive ? 'nav-link active' : 'nav-link'}
                   onClick={closeSidebar}
                 >

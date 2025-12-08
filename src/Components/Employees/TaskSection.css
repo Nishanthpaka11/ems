@@ -30,7 +30,7 @@ input:focus, select:focus{outline: none; border-color: var(--primary); box-shado
 .search-actions{display:flex; align-items:center; gap:12px;}
 .search{display:flex; align-items:center; gap:8px; background:var(--surface); border:1px solid var(--ring); padding:10px 12px; border-radius:12px; min-width:320px; box-shadow:var(--shadow);}
 .search input{all:unset; font-size:14px; color:var(--text); width:100%;}
-.primary-btn{all:unset; background:var(--primary); color:#fff; padding:10px 16px; border-radius:10px; font-weight:600; cursor:pointer; box-shadow:0 6px 16px rgba(59,130,246,.3);}
+.primary-btn{all:unset; background:var(--primary); color:#fff; padding:10px 16px; border-radius:10px; font-weight:600; cursor:pointer; box-shadow:0 6px 16px rgba(59,130,246,.3); margin-top: 10px;}
 .primary-btn:hover{background:var(--primary-600);}
 
 .stats-row{display:grid; grid-template-columns: repeat(4, 1fr); gap:16px; margin:12px 0 24px;}

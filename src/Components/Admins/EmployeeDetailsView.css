@@ -96,7 +96,10 @@
    ======================================== */
 
 .profile-header {
+
   padding: 20px 24px 18px;
+
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   display: grid;
   grid-template-columns: auto 1fr auto;
   gap: 18px;
@@ -332,6 +335,7 @@
   border-radius: 999px;
   border: none;
   background: linear-gradient(135deg, #2563eb, #0ea5e9);
+ 
   color: white;
   font-size: 0.9rem;
   font-weight: 500;
