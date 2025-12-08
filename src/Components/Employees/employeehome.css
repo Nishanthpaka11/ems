@@ -219,3 +219,31 @@
   margin-right: 4px;
   vertical-align: middle;
 }
+/* Future dates - neutral white */
+.day-future {
+  background: #ffffff !important;
+  color: #444 !important;
+  border: 1px solid #ddd !important;
+}
+
+/* Already exist, but ensure colors override future */
+.day-present {
+  background: #28a745 !important;
+  color: #fff !important;
+}
+
+.day-absent {
+  background: #dc3545 !important;
+  color: #fff !important;
+}
+.calendar-header {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 0.25rem;
+}
+
+.calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 0.25rem;
+}

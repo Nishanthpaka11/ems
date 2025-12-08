@@ -20,7 +20,7 @@ function EmployeeHome() {
   const [wifiAllowed, setWifiAllowed] = useState(false);
   const [photo, setPhoto] = useState(null);
   const [workDuration, setWorkDuration] = useState('00h 00m 00s');
-  const [attendanceByDate, setAttendanceByDate] = useState({}); // 💾 map of date -> punched_in
+  const [attendanceByDate, setAttendanceByDate] = useState({}); // map of date -> punched_in
 
   useEffect(() => {
     if (!token || !user) navigate('/');
@@ -46,7 +46,6 @@ function EmployeeHome() {
 
   const fetchAttendanceHistory = useCallback(async () => {
     try {
-      // ⚠️ Adjust this endpoint/response format as per your backend
       const res = await authFetch(`${API_BASE}/api/attendance/history`);
       if (!res) return;
       const data = await res.json();
@@ -132,7 +131,35 @@ function EmployeeHome() {
     if (file) setPhoto(file);
   };
 
+  // ⏰ TIME WINDOW HELPERS
+  const isPunchInTimeAllowed = () => {
+    const now = new Date();
+    const hour = now.getHours();
+    const minute = now.getMinutes();
+    // allowed until 9:45 AM (inclusive)
+    return hour < 9 || (hour === 9 && minute <= 45);
+  };
+
+  const isPunchOutTimeAllowed = () => {
+    const now = new Date();
+    const hour = now.getHours();
+    const minute = now.getMinutes();
+    // allowed from 1:00 PM onwards
+    return hour > 13 || (hour === 13 && minute >= 0);
+  };
+
+  // derived booleans for button disabled state (uses live clock)
+  const nowHour = clock.getHours();
+  const nowMinute = clock.getMinutes();
+  const canPunchInNow = nowHour < 9 || (nowHour === 9 && nowMinute <= 45);
+  const canPunchOutNow = nowHour > 13 || (nowHour === 13 && nowMinute >= 0);
+
   const handlePunchIn = async () => {
+    if (!isPunchInTimeAllowed()) {
+      alert('❌ Punch In is only allowed before 9:45 AM.');
+      return;
+    }
+
     if (!wifiAllowed) {
       alert("❌ You're not on allowed WiFi.");
       return;
@@ -165,6 +192,11 @@ function EmployeeHome() {
   };
 
   const handlePunchOut = async () => {
+    if (!isPunchOutTimeAllowed()) {
+      alert('❌ Punch Out is only allowed after 1:00 PM.');
+      return;
+    }
+
     if (!wifiAllowed) {
       alert("❌ You're not on allowed WiFi.");
       return;
@@ -175,7 +207,7 @@ function EmployeeHome() {
     const timeDiff = (now - punchInTime) / (1000 * 60 * 60);
 
     if (timeDiff < 1) {
-      alert('❌ Minimum 1 hour must pass before Punch Out.');
+      alert('Punch Out Available after 1PM.');
       return;
     }
 
@@ -227,7 +259,7 @@ function EmployeeHome() {
     }
   };
 
-  // 🗓️ Build calendar for the current month
+  // Build calendar for the current month
   const getCurrentMonthCalendar = () => {
     const today = new Date();
     const year = today.getFullYear();
@@ -256,8 +288,6 @@ function EmployeeHome() {
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.8, ease: 'easeOut' }}
     >
-      {/* header removed so content sits under the left sidebar */}
-
       <motion.div
         className="container py-4"
         initial={{ opacity: 0 }}
@@ -385,14 +415,14 @@ function EmployeeHome() {
             <button
               className="btn btn-success flex-fill punch-btns"
               onClick={handlePunchIn}
-              disabled={!!status.punch_in}
+              disabled={!!status.punch_in || !canPunchInNow}
             >
               Punch In
             </button>
             <button
               className="btn flex-fill punch-btn"
               onClick={handlePunchOut}
-              disabled={!status.punch_in || !!status.punch_out}
+              disabled={!status.punch_in || !!status.punch_out || !canPunchOutNow}
             >
               Punch Out
             </button>
@@ -416,7 +446,7 @@ function EmployeeHome() {
             </button>
           </div>
 
-          {/* 🗓️ Attendance Calendar */}
+          {/* Attendance Calendar */}
           <div className="attendance-calendar mt-4">
             {(() => {
               const { year, month, days, startWeekday } = getCurrentMonthCalendar();
@@ -432,7 +462,7 @@ function EmployeeHome() {
                     Attendance Calendar – {monthName} {year}
                   </h5>
 
-                  <div className="calendar-header d-flex mb-2">
+                  <div className="calendar-header  mb-2">
                     {weekDays.map((d) => (
                       <div key={d} className="calendar-cell calendar-header-cell">
                         {d}
@@ -447,16 +477,35 @@ function EmployeeHome() {
                     ))}
 
                     {/* Actual days */}
-                    {days.map(({ date, isoKey, punchedIn }) => (
-                      <div
-                        key={isoKey}
-                        className={`calendar-cell day-cell ${
-                          punchedIn ? 'day-present' : 'day-absent'
-                        }`}
-                      >
-                        <span className="day-number">{date.getDate()}</span>
-                      </div>
-                    ))}
+                    {days.map(({ date, isoKey, punchedIn }) => {
+  // Normalize dates
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  const dayDate = new Date(date);
+  dayDate.setHours(0, 0, 0, 0);
+
+  // Determine color class
+  let dayStatusClass = "";
+
+  if (dayDate > today) {
+    dayStatusClass = "day-future"; // future = white
+  } else if (punchedIn) {
+    dayStatusClass = "day-present"; // green
+  } else {
+    dayStatusClass = "day-absent"; // red
+  }
+
+  return (
+    <div
+      key={isoKey}
+      className={`calendar-cell day-cell ${dayStatusClass}`}
+    >
+      <span className="day-number">{date.getDate()}</span>
+    </div>
+  );
+})}
+
                   </div>
 
                   <div className="calendar-legend mt-2">

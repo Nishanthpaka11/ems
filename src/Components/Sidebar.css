@@ -276,9 +276,27 @@ html, body {
 /* ===== Mobile Responsiveness ===== */
 @media (max-width: 830px) {
   .sidebar {
-    transform: translateX(-260px);
     width: min(86%, 320px);
+    transform: translateX(-100%);  /* <-- hide fully off-screen */
   }
+
+  .sidebar-toggle {
+    display: flex;
+  }
+
+  .sidebar.sidebar-open {
+    transform: translateX(0);      /* <-- slide in when open */
+    box-shadow: 0 30px 80px rgba(2,6,12,0.6);
+  }
+
+
+.sidebar-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.45);
+  z-index: 1100;
+}
+
 
   .sidebar-toggle {
     display: flex;
