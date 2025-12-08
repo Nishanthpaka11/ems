@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import { FaWifi, FaClock, FaUserCheck, FaFileDownload, FaCamera } from 'react-icons/fa';
+import { FaWifi, FaClock, FaUserCheck, FaFileDownload } from 'react-icons/fa';
 import './employeehome.css';
 import { useNavigate } from 'react-router-dom';
 import { getLocalIP } from '../utils/getLocalIP';
@@ -18,7 +18,6 @@ function EmployeeHome() {
   const [error, setError] = useState('');
   const [ip, setIp] = useState('');
   const [wifiAllowed, setWifiAllowed] = useState(false);
-  const [photo, setPhoto] = useState(null);
   const [workDuration, setWorkDuration] = useState('00h 00m 00s');
   const [attendanceByDate, setAttendanceByDate] = useState({}); // map of date -> punched_in
 
@@ -49,7 +48,6 @@ function EmployeeHome() {
       const res = await authFetch(`${API_BASE}/api/attendance/history`);
       if (!res) return;
       const data = await res.json();
-      // expected: [{ date: '2025-12-01', punched_in: true }, ...]
       const mapped = {};
       data.forEach((item) => {
         mapped[item.date] = item.punched_in;
@@ -126,11 +124,6 @@ function EmployeeHome() {
     return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
   };
 
-  const handlePhotoUpload = (event) => {
-    const file = event.target.files[0];
-    if (file) setPhoto(file);
-  };
-
   // ⏰ TIME WINDOW HELPERS
   const isPunchInTimeAllowed = () => {
     const now = new Date();
@@ -164,15 +157,10 @@ function EmployeeHome() {
       alert("❌ You're not on allowed WiFi.");
       return;
     }
-    if (!photo) {
-      alert('❌ Please upload a photo to Punch In.');
-      return;
-    }
 
     try {
       const localIP = await getLocalIP();
       const formData = new FormData();
-      formData.append('photo', photo, 'punchin.jpg');
       formData.append('localIP', localIP);
 
       const res = await authFetch(`${API_BASE}/api/attendance/punch`, {
@@ -184,7 +172,6 @@ function EmployeeHome() {
       alert(`✅ ${data.message}`);
       fetchStatus();
       fetchAttendanceHistory();
-      setPhoto(null);
     } catch (err) {
       console.error('Punch In error:', err);
       alert('❌ Punch In failed');
@@ -369,22 +356,6 @@ function EmployeeHome() {
             <strong>Your IP(s):</strong> {ip || 'Fetching...'}
           </p>
 
-          {!status.punch_in && (
-            <div className="photo-section">
-              <label className="form-label fw-bold text-secondary">
-                <FaCamera className="me-2" />
-                Upload Photo for Punch In
-              </label>
-              <input
-                type="file"
-                className="form-control"
-                accept="image/*"
-                onChange={handlePhotoUpload}
-              />
-              {photo && <p className="text-success mt-2">✅ Photo selected</p>}
-            </div>
-          )}
-
           <div className="punch-status mt-3">
             <h4 className="fw-bold text-secondary">Attendance Status (Today)</h4>
             {!status.punch_in && <p>❌ Not yet punched in</p>}
@@ -471,41 +442,36 @@ function EmployeeHome() {
                   </div>
 
                   <div className="calendar-grid">
-                    {/* Empty cells before first day */}
                     {Array.from({ length: startWeekday }).map((_, idx) => (
                       <div key={`empty-${idx}`} className="calendar-cell empty-cell" />
                     ))}
 
-                    {/* Actual days */}
                     {days.map(({ date, isoKey, punchedIn }) => {
-  // Normalize dates
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
+                      const today = new Date();
+                      today.setHours(0, 0, 0, 0);
 
-  const dayDate = new Date(date);
-  dayDate.setHours(0, 0, 0, 0);
+                      const dayDate = new Date(date);
+                      dayDate.setHours(0, 0, 0, 0);
 
-  // Determine color class
-  let dayStatusClass = "";
+                      let dayStatusClass = '';
 
-  if (dayDate > today) {
-    dayStatusClass = "day-future"; // future = white
-  } else if (punchedIn) {
-    dayStatusClass = "day-present"; // green
-  } else {
-    dayStatusClass = "day-absent"; // red
-  }
+                      if (dayDate > today) {
+                        dayStatusClass = 'day-future';
+                      } else if (punchedIn) {
+                        dayStatusClass = 'day-present';
+                      } else {
+                        dayStatusClass = 'day-absent';
+                      }
 
-  return (
-    <div
-      key={isoKey}
-      className={`calendar-cell day-cell ${dayStatusClass}`}
-    >
-      <span className="day-number">{date.getDate()}</span>
-    </div>
-  );
-})}
-
+                      return (
+                        <div
+                          key={isoKey}
+                          className={`calendar-cell day-cell ${dayStatusClass}`}
+                        >
+                          <span className="day-number">{date.getDate()}</span>
+                        </div>
+                      );
+                    })}
                   </div>
 
                   <div className="calendar-legend mt-2">

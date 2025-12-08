@@ -145,7 +145,7 @@ const LeaveSection = () => {
           <h2 className="page-title">Leaves</h2>
           <div className="search-actions">
             <div className="search">
-              <span className="icon">🔎</span>
+              
               <input placeholder="Search reason or status" />
             </div>
           </div>
