@@ -4,6 +4,14 @@ import './adminhome.css';
 import { useNavigate } from 'react-router-dom';
 import { authFetch } from '../utils/authFetch';
 // keep: import 'bootstrap-icons/font/bootstrap-icons.css' in src/index.js
+import {
+  PieChart,
+  Pie,
+  Cell,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+} from 'recharts';
 
 const AdminDashboard = () => {
   // ========== Data state (UNCHANGED) ==========
@@ -20,16 +28,6 @@ const AdminDashboard = () => {
   const adminName = user?.name || 'Admin';
   const navigate = useNavigate();
   const API_BASE = process.env.REACT_APP_API_URL;
-
-  // ========== PI Chat state (NEW) ==========
-  const [chatInput, setChatInput] = useState('');
-  const [chatMessages, setChatMessages] = useState(() => [
-    {
-      sender: 'pi',
-      text: `Hi ${adminName.split(' ')[0] || 'Admin'} 👋, I’m your attendance assistant. Try asking things like “How many employees punched in today?” or “Show me attendance for ${new Date().toISOString().split('T')[0]}”.`,
-      ts: new Date().toISOString()
-    }
-  ]);
 
   // ========== Network (UNCHANGED) ==========
   const fetchRecords = useCallback(async () => {
@@ -100,6 +98,21 @@ const AdminDashboard = () => {
     const punchOutDate = new Date(r.punch_out_time).toISOString().split('T')[0];
     return punchOutDate === today;
   }).length;
+
+  // ========== Pie chart data (NEW) ==========
+  // Present = employees who have punched in today
+  // Not Punched = totalEmployees - Present (never negative)
+  const pieData = useMemo(() => {
+    const present = todayPunchIns;
+    const notPunched = Math.max(totalEmployees - present, 0);
+
+    return [
+      { name: 'Present (Punched In)', value: present },
+      { name: 'Not Punched In', value: notPunched },
+    ];
+  }, [todayPunchIns, totalEmployees]);
+
+  const PIE_COLORS = ['#22c55e', '#ef4444'];
 
   // ========== Actions (UNCHANGED) ==========
   const handleExportCSV = () => {
@@ -179,89 +192,13 @@ const AdminDashboard = () => {
   const recordsCount = filtered.length;
   const earliestRow = useMemo(() => (filtered[0] ? filtered[0].date : ''), [filtered]);
 
-  // ========== PI Chat: simple attendance Q&A (NEW) ==========
-  const buildPiAnswer = (q) => {
-    const text = q.toLowerCase().trim();
-
-    // date detection: yyyy-mm-dd in question
-    const dateMatch = text.match(/\d{4}-\d{2}-\d{2}/);
-    let targetDate = today;
-    if (dateMatch) {
-      targetDate = dateMatch[0];
-    } else if (text.includes('yesterday')) {
-      const d = new Date();
-      d.setDate(d.getDate() - 1);
-      targetDate = d.toISOString().split('T')[0];
-    }
-
-    const forDate = (dateStr) =>
-      records.filter(r => {
-        if (!r.date) return false;
-        return r.date === dateStr;
-      });
-
-    const dayRecords = forDate(targetDate);
-    const dayPunchIns = dayRecords.filter(r => r.punch_in_time).length;
-    const dayPunchOuts = dayRecords.filter(r => r.punch_out_time).length;
-
-    // some basic intents
-    if (text.includes('present') || text.includes('punched in')) {
-      return `On ${targetDate}, ${dayPunchIns} employee(s) have punched in.`;
-    }
-
-    if (text.includes('punch out') || text.includes('left')) {
-      return `On ${targetDate}, ${dayPunchOuts} employee(s) have punched out.`;
-    }
-
-    if (text.includes('total employee') || text.includes('how many employee')) {
-      return `You currently have ${totalEmployees} employee(s) in the system.`;
-    }
-
-    if (text.includes('summary') || text.includes('today') || text.includes('overview')) {
-      return `Today (${today}) summary:\n• Total employees: ${totalEmployees}\n• Punch-ins: ${todayPunchIns}\n• Punch-outs: ${todayPunchOuts}\n• Filtered records in table: ${recordsCount}`;
-    }
-
-    if (text.includes('help') || text === '' || text.length < 4) {
-      return `You can ask things like:
-• "How many employees punched in today?"
-• "Attendance summary for ${today}"
-• "How many employees do we have?"
-• "How many punched out yesterday?"`;
-    }
-
-    // Fallback generic answer
-    return `Here’s what I know right now:\n• Total employees: ${totalEmployees}\n• Today's punch-ins: ${todayPunchIns}\n• Today's punch-outs: ${todayPunchOuts}\nYou can be more specific, e.g. "summary for ${today}" or "punch-outs yesterday".`;
-  };
-
-  const handleChatSubmit = (e) => {
-    e.preventDefault();
-    const trimmed = chatInput.trim();
-    if (!trimmed) return;
-
-    const questionMsg = {
-      sender: 'admin',
-      text: trimmed,
-      ts: new Date().toISOString()
-    };
-
-    const answerText = buildPiAnswer(trimmed);
-    const answerMsg = {
-      sender: 'pi',
-      text: answerText,
-      ts: new Date().toISOString()
-    };
-
-    setChatMessages(prev => [...prev, questionMsg, answerMsg]);
-    setChatInput('');
-  };
-
   // ========== Render (minimal, clear) ==========
   return (
     <div className="clean-shell">
       {/* TOPBAR */}
       <header className="clean-topbar">
         <div className="brand">
-          <div className="brand-name">Company Admin</div>
+          <div className="brand-name">Admin</div>
           <div className="brand-sub">Welcome, {adminName}</div>
         </div>
 
@@ -300,11 +237,58 @@ const AdminDashboard = () => {
         </div>
       </section>
 
+      {/* ATTENDANCE PIE CHART (NEW) */}
+      <section className="clean-panel attendance-chart-panel">
+        <div className="panel-head">
+          <h3>Attendance Overview (Today)</h3>
+          <div className="panel-meta">
+            Present vs Not Punched In • {today}
+          </div>
+        </div>
+
+        <div className="attendance-chart-wrapper">
+          <ResponsiveContainer width="100%" height="100%">
+            <PieChart>
+              <Pie
+                data={pieData}
+                dataKey="value"
+                nameKey="name"
+                cx="50%"
+                cy="50%"
+                innerRadius={60}
+                outerRadius={90}
+                paddingAngle={2}
+              >
+                {pieData.map((entry, index) => (
+                  <Cell
+                    key={`cell-${index}`}
+                    fill={PIE_COLORS[index % PIE_COLORS.length]}
+                  />
+                ))}
+              </Pie>
+              <Tooltip
+                formatter={(value, name) => [`${value}`, name]}
+              />
+              <Legend />
+            </PieChart>
+          </ResponsiveContainer>
+        </div>
+
+        <div className="attendance-chart-legend">
+          <span className="legend-dot legend-present" /> Present ({pieData[0]?.value || 0})
+          <span className="legend-dot legend-absent" /> Not Punched In ({pieData[1]?.value || 0})
+        </div>
+      </section>
+
       {/* FILTERS */}
       <section className="clean-filters">
         <label className="frow">
           <span>Date</span>
-          <input type="date" value={selectedDate} onChange={(e) => setSelectedDate(e.target.value)} />
+          <input
+            type="date"
+            value={selectedDate}
+            onChange={(e) => setSelectedDate(e.target.value)}
+          />
         </label>
 
         <div className="frow">
@@ -341,7 +325,7 @@ const AdminDashboard = () => {
                 </div>
 
                 <div className="emp-actions">
-                  <span className="tiny muted">Leave</span>
+                  <label className="small">Leave</label>
                   <input
                     type="number"
                     value={emp.leave_quota || 0}
@@ -445,52 +429,6 @@ const AdminDashboard = () => {
             </table>
           </div>
         )}
-      </section>
-
-      {/* PI CHAT PANEL (NEW) */}
-      <section className="clean-panel pi-chat-panel">
-        <div className="panel-head">
-          <div>
-            <h3 className="pi-chat-title">
-              <i className="bi bi-robot" /> Attendance PI Chat
-            </h3>
-            <div className="panel-meta">
-              Ask quick questions about attendance — today, yesterday, or a specific date.
-            </div>
-          </div>
-        </div>
-
-        <div className="pi-chat-body">
-          <div className="pi-chat-messages">
-            {chatMessages.map((m, idx) => (
-              <div
-                key={idx}
-                className={`pi-msg ${m.sender === 'admin' ? 'me' : 'bot'}`}
-              >
-                <div className="pi-msg-label">
-                  {m.sender === 'admin' ? 'You' : 'PI'}
-                </div>
-                <div className="pi-msg-bubble">
-                  {m.text.split('\n').map((line, i) => (
-                    <p key={i}>{line}</p>
-                  ))}
-                </div>
-              </div>
-            ))}
-          </div>
-
-          <form className="pi-chat-input-row" onSubmit={handleChatSubmit}>
-            <input
-              type="text"
-              placeholder={`Ask about attendance… e.g. "summary for ${today}"`}
-              value={chatInput}
-              onChange={(e) => setChatInput(e.target.value)}
-            />
-            <button type="submit" className="clean-btn pi-send-btn">
-              <i className="bi bi-send" />
-            </button>
-          </form>
-        </div>
       </section>
 
       <footer className="clean-footer">

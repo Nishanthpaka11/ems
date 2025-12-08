@@ -19,12 +19,13 @@ const EmployeeDetailsView = () => {
 
   useEffect(() => {
     fetchEmployeeDetails();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [employeeId]);
 
   const fetchEmployeeDetails = async () => {
     try {
       const token = localStorage.getItem('token');
-      
+
       if (!token) {
         setError('No authentication token found');
         setLoading(false);
@@ -152,7 +153,7 @@ const EmployeeDetailsView = () => {
   const handleSave = async () => {
     try {
       const token = localStorage.getItem('token');
-      
+
       const response = await fetch(`${API_BASE_URL}/api/profile/employee/${employeeId}`, {
         method: 'PUT',
         headers: {
@@ -225,9 +226,12 @@ const EmployeeDetailsView = () => {
 
   return (
     <div className="employee-details-view">
-      <button className="btn-back" onClick={handleBack}>
-        <i className="bi bi-arrow-left"></i> Back
-      </button>
+      <div className="details-header-bar">
+        <button className="btn-back" onClick={handleBack}>
+          <i className="bi bi-arrow-left"></i>
+          <span>Back to employees</span>
+        </button>
+      </div>
 
       {error && (
         <div className="alert alert-error">
@@ -250,50 +254,54 @@ const EmployeeDetailsView = () => {
                 <img src={editedData.photo || employee.photo} alt={employee.name} />
               ) : (
                 <div className="photo-placeholder">
-                  <i className="bi bi-person-circle"></i>
+                  <i className="bi bi-person-fill"></i>
                 </div>
               )}
             </div>
 
             {isEditing && (
-              <div className="photo-actions">
-                <label htmlFor="photo-upload" className="photo-upload-label">
-                  <i className="bi bi-camera-fill"></i> Change Photo
-                </label>
-                <input
-                  type="file"
-                  id="photo-upload"
-                  accept="image/*"
-                  onChange={handlePhotoChange}
-                  style={{ display: 'none' }}
-                />
-                {(employee.photo || editedData.photo) && (
-                  <button className="photo-delete-btn" onClick={handleDeletePhoto}>
-                    <i className="bi bi-trash-fill"></i> Delete
-                  </button>
-                )}
-              </div>
-            )}
-
-            {photoFile && (
-              <div className="photo-preview">
-                <small>{photoFile.name}</small>
-                <div className="photo-preview-actions">
-                  <button 
-                    className="btn-upload" 
-                    onClick={handlePhotoUpload}
-                    disabled={uploading}
-                  >
-                    {uploading ? 'Uploading...' : 'Upload'}
-                  </button>
-                  <button 
-                    className="btn-cancel-upload" 
-                    onClick={() => setPhotoFile(null)}
-                  >
-                    Cancel
-                  </button>
+              <>
+                <div className="photo-actions">
+                  <label htmlFor="photo-upload" className="photo-upload-label">
+                    <i className="bi bi-camera-fill"></i>
+                    Change photo
+                  </label>
+                  <input
+                    type="file"
+                    id="photo-upload"
+                    accept="image/*"
+                    onChange={handlePhotoChange}
+                    style={{ display: 'none' }}
+                  />
+                  {(employee.photo || editedData.photo) && (
+                    <button className="photo-delete-btn" onClick={handleDeletePhoto}>
+                      <i className="bi bi-trash-fill"></i>
+                      Remove
+                    </button>
+                  )}
                 </div>
-              </div>
+
+                {photoFile && (
+                  <div className="photo-preview">
+                    <small>{photoFile.name}</small>
+                    <div className="photo-preview-actions">
+                      <button
+                        className="btn-upload"
+                        onClick={handlePhotoUpload}
+                        disabled={uploading}
+                      >
+                        {uploading ? 'Uploading…' : 'Upload'}
+                      </button>
+                      <button
+                        className="btn-cancel-upload"
+                        onClick={() => setPhotoFile(null)}
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </>
             )}
           </div>
 
@@ -302,7 +310,14 @@ const EmployeeDetailsView = () => {
               <>
                 <h1 className="employee-name">{employee.name}</h1>
                 <p className="employee-role">
-                  {employee.role || 'Employee'} - {employee.department || 'IT'}
+                  {employee.position || 'Employee'} • {employee.department || 'Department'}
+                </p>
+                <p className="employee-meta">
+                  {employee.employee_id && (
+                    <>
+                      <i className="bi bi-upc-scan" /> {employee.employee_id}
+                    </>
+                  )}
                 </p>
               </>
             ) : (
@@ -310,15 +325,15 @@ const EmployeeDetailsView = () => {
                 <input
                   type="text"
                   name="name"
-                  value={editedData.name}
+                  value={editedData.name || ''}
                   onChange={handleChange}
                   className="edit-input-name"
-                  placeholder="Name"
+                  placeholder="Full name"
                 />
                 <div className="edit-role-row">
                   <select
                     name="role"
-                    value={editedData.role}
+                    value={editedData.role || 'employee'}
                     onChange={handleChange}
                     className="edit-select-role"
                   >
@@ -341,15 +356,18 @@ const EmployeeDetailsView = () => {
           <div className="profile-actions">
             {!isEditing ? (
               <button className="btn-edit" onClick={handleEdit}>
-                <i className="bi bi-pencil-square"></i> Edit
+                <i className="bi bi-pencil-square" />
+                Edit profile
               </button>
             ) : (
               <div className="edit-actions">
                 <button className="btn-save" onClick={handleSave}>
-                  <i className="bi bi-check-circle"></i> Save
+                  <i className="bi bi-check-circle" />
+                  Save
                 </button>
                 <button className="btn-cancel" onClick={handleCancel}>
-                  <i className="bi bi-x-circle"></i> Cancel
+                  <i className="bi bi-x-circle" />
+                  Cancel
                 </button>
               </div>
             )}
@@ -361,21 +379,21 @@ const EmployeeDetailsView = () => {
           {/* Employee ID */}
           <div className="detail-card">
             <div className="detail-icon detail-icon-id">
-              <i className="bi bi-upc-scan"></i>
+              <i className="bi bi-upc-scan" />
             </div>
             <div className="detail-text">
-              <label>EMPLOYEE ID</label>
-              <p>{employee.employee_id}</p>
+              <label>Employee ID</label>
+              <p>{employee.employee_id || '—'}</p>
             </div>
           </div>
 
           {/* Email */}
           <div className="detail-card">
             <div className="detail-icon detail-icon-email">
-              <i className="bi bi-envelope-fill"></i>
+              <i className="bi bi-envelope-fill" />
             </div>
             <div className="detail-text">
-              <label>EMAIL</label>
+              <label>Email</label>
               {!isEditing ? (
                 <p>{employee.email || '—'}</p>
               ) : (
@@ -394,10 +412,10 @@ const EmployeeDetailsView = () => {
           {/* Phone */}
           <div className="detail-card">
             <div className="detail-icon detail-icon-phone">
-              <i className="bi bi-telephone-fill"></i>
+              <i className="bi bi-telephone-fill" />
             </div>
             <div className="detail-text">
-              <label>PHONE</label>
+              <label>Phone</label>
               {!isEditing ? (
                 <p>{employee.phone || '—'}</p>
               ) : (
@@ -416,10 +434,10 @@ const EmployeeDetailsView = () => {
           {/* Position */}
           <div className="detail-card">
             <div className="detail-icon detail-icon-position">
-              <i className="bi bi-briefcase-fill"></i>
+              <i className="bi bi-briefcase-fill" />
             </div>
             <div className="detail-text">
-              <label>POSITION</label>
+              <label>Position</label>
               {!isEditing ? (
                 <p>{employee.position || '—'}</p>
               ) : (
@@ -438,10 +456,10 @@ const EmployeeDetailsView = () => {
           {/* Current Address */}
           <div className="detail-card detail-card-wide">
             <div className="detail-icon detail-icon-address">
-              <i className="bi bi-geo-alt-fill"></i>
+              <i className="bi bi-geo-alt-fill" />
             </div>
             <div className="detail-text">
-              <label>CURRENT ADDRESS</label>
+              <label>Current address</label>
               {!isEditing ? (
                 <p>{employee.currentAddress || '—'}</p>
               ) : (
@@ -450,7 +468,7 @@ const EmployeeDetailsView = () => {
                   value={editedData.currentAddress || ''}
                   onChange={handleChange}
                   className="edit-field-textarea"
-                  placeholder="Current Address"
+                  placeholder="Current address"
                   rows="2"
                 />
               )}
@@ -460,10 +478,10 @@ const EmployeeDetailsView = () => {
           {/* Permanent Address */}
           <div className="detail-card detail-card-wide">
             <div className="detail-icon detail-icon-home">
-              <i className="bi bi-house-fill"></i>
+              <i className="bi bi-house-fill" />
             </div>
             <div className="detail-text">
-              <label>PERMANENT ADDRESS</label>
+              <label>Permanent address</label>
               {!isEditing ? (
                 <p>{employee.permanentAddress || '—'}</p>
               ) : (
@@ -472,20 +490,20 @@ const EmployeeDetailsView = () => {
                   value={editedData.permanentAddress || ''}
                   onChange={handleChange}
                   className="edit-field-textarea"
-                  placeholder="Permanent Address"
+                  placeholder="Permanent address"
                   rows="2"
                 />
               )}
             </div>
           </div>
 
-          {/* Aadhar Number */}
+          {/* Aadhar */}
           <div className="detail-card detail-card-wide">
             <div className="detail-icon detail-icon-aadhar">
-              <i className="bi bi-credit-card-2-front-fill"></i>
+              <i className="bi bi-credit-card-2-front-fill" />
             </div>
             <div className="detail-text">
-              <label>AADHAR NUMBER</label>
+              <label>Aadhar number</label>
               {!isEditing ? (
                 <p>{employee.aadhar || '—'}</p>
               ) : (
@@ -495,7 +513,7 @@ const EmployeeDetailsView = () => {
                   value={editedData.aadhar || ''}
                   onChange={handleChange}
                   className="edit-field-input"
-                  placeholder="Aadhar Number"
+                  placeholder="Aadhar number"
                   maxLength="12"
                 />
               )}
