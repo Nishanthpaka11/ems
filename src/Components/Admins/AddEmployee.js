@@ -17,8 +17,9 @@ const AddEmployee = () => {
     email: '',
     password: '',
     phone: '',
+    dob: '',              // ✅ NEW: Date of Birth
     role: 'employee',
-    department: 'IT',
+    department: '',
     position: '',
     currentAddress: '',
     permanentAddress: '',
@@ -90,7 +91,7 @@ const AddEmployee = () => {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify(formData)
+        body: JSON.stringify(formData) // ✅ dob is now included automatically
       });
 
       if (!response.ok) {
@@ -106,7 +107,6 @@ const AddEmployee = () => {
         const photoFormData = new FormData();
         photoFormData.append('photo', photoFile);
 
-        // You can re-use your profile photo upload route or make a dedicated one for /api/addemployee/:id/photo
         const photoResponse = await fetch(
           `${API_BASE_URL}/api/profile/employee/${newEmployeeId}/upload-photo`,
           {
@@ -119,7 +119,6 @@ const AddEmployee = () => {
         );
 
         if (!photoResponse.ok) {
-          // Even if this fails, the employee is created. Show partial success.
           console.error('Photo upload failed, but employee was created');
         }
       }
@@ -143,8 +142,9 @@ const AddEmployee = () => {
       email: '',
       password: '',
       phone: '',
-      role: 'employee',
-      department: 'IT',
+      dob: '',          // ✅ reset dob too
+      role: '',
+      department: '',
       position: '',
       currentAddress: '',
       permanentAddress: '',
@@ -288,6 +288,20 @@ const AddEmployee = () => {
                 onChange={handleChange}
                 className="form-input"
                 placeholder="Enter phone number"
+              />
+            </div>
+
+            {/* ✅ New Date of Birth field */}
+            <div className="form-group">
+              <label htmlFor="dob" className="form-label">Date of Birth</label>
+              <input
+                type="date"
+                id="dob"
+                name="dob"
+                value={formData.dob}
+                onChange={handleChange}
+                className="form-input"
+                
               />
             </div>
 
