@@ -168,7 +168,8 @@ const EmployeeDetailsView = () => {
           position: editedData.position,
           currentAddress: editedData.currentAddress,
           permanentAddress: editedData.permanentAddress,
-          aadhar: editedData.aadhar
+          aadhar: editedData.aadhar,
+          dob: editedData.dob          
         })
       });
 
@@ -430,6 +431,34 @@ const EmployeeDetailsView = () => {
               )}
             </div>
           </div>
+
+                    {/* Date of Birth */}
+          <div className="detail-card">
+            <div className="detail-icon detail-icon-date">
+              <i className="bi bi-calendar-event" />
+            </div>
+            <div className="detail-text">
+             <label>Date of Birth</label>
+{!isEditing ? (
+  <p>
+    {employee.dob
+      ? employee.dob.slice(0, 10)
+      : '—'}
+  </p>
+) : (
+  <input
+    type="date"
+    name="dob"
+    value={editedData.dob ? editedData.dob.slice(0, 10) : ''}
+    onChange={handleChange}
+    className="edit-field-input"
+  />
+)}
+            </div>
+          </div>
+
+
+          
 
           {/* Position */}
           <div className="detail-card">

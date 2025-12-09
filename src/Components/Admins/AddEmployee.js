@@ -143,8 +143,8 @@ const AddEmployee = () => {
       password: '',
       phone: '',
       dob: '',          // ✅ reset dob too
-      role: 'employee',
-      department: 'IT',
+      role: '',
+      department: '',
       position: '',
       currentAddress: '',
       permanentAddress: '',
