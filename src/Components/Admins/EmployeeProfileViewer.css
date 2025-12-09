@@ -6,6 +6,10 @@
   padding: var(--space-32);
   min-height: 100vh;
   background-color: var(--color-background);
+  width: 100%;
+  max-width: 100vw;
+  box-sizing: border-box;
+  overflow-x: hidden;
 }
 
 /* ========================================
@@ -47,6 +51,7 @@
   background: var(--color-surface);
   color: var(--color-text);
   transition: all 0.2s ease;
+  box-sizing: border-box;
 }
 
 .search-bar input:focus {
@@ -61,9 +66,11 @@
 
 .employee-cards-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
   gap: var(--space-24);
-  max-width: 1600px;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
 /* ========================================
@@ -88,6 +95,7 @@
 }
 
 /* Card Content */
+
 .card-content {
   padding: var(--space-20);
   flex: 1;
@@ -246,7 +254,9 @@
 }
 
 @keyframes spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .loading-spinner p {
@@ -305,12 +315,6 @@
    RESPONSIVE DESIGN
    ======================================== */
 
-@media (max-width: 1200px) {
-  .employee-cards-grid {
-    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-  }
-}
-
 @media (max-width: 768px) {
   .employee-profile-viewer {
     padding: var(--space-16);
@@ -321,8 +325,8 @@
   }
 
   .employee-cards-grid {
-    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
     gap: var(--space-16);
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
   }
 
   .employee-photo-section {
