@@ -48,10 +48,14 @@ function EmployeeHome() {
       const res = await authFetch(`${API_BASE}/api/attendance/history`);
       if (!res) return;
       const data = await res.json();
+
       const mapped = {};
       data.forEach((item) => {
-        mapped[item.date] = item.punched_in;
+        // Normalize backend date -> "YYYY-MM-DD" (local time)
+        const key = new Date(item.date).toLocaleDateString('en-CA');
+        mapped[key] = !!item.punched_in;
       });
+
       setAttendanceByDate(mapped);
     } catch (err) {
       console.error('Attendance history fetch failed:', err);
@@ -108,6 +112,16 @@ function EmployeeHome() {
     return () => clearInterval(interval);
   }, [status.punch_in, status.punch_out]);
 
+  // ✅ FORCE TODAY AS PRESENT WHEN PUNCHED IN
+  useEffect(() => {
+    if (!status.punch_in) return;
+    const key = new Date(status.punch_in).toLocaleDateString('en-CA'); // "YYYY-MM-DD"
+    setAttendanceByDate((prev) => ({
+      ...prev,
+      [key]: true,
+    }));
+  }, [status.punch_in]);
+
   const calculateWorkingHours = () => {
     if (status.punch_in && status.punch_out) {
       const diff = new Date(status.punch_out) - new Date(status.punch_in);
@@ -129,8 +143,8 @@ function EmployeeHome() {
     const now = new Date();
     const hour = now.getHours();
     const minute = now.getMinutes();
-    // allowed until 9:45 AM (inclusive)
-    return hour < 9 || (hour === 9 && minute <= 45);
+    // allowed until 10:45 AM (inclusive)
+    return hour < 10 || (hour === 10 && minute <= 45);
   };
 
   const isPunchOutTimeAllowed = () => {
@@ -144,7 +158,7 @@ function EmployeeHome() {
   // derived booleans for button disabled state (uses live clock)
   const nowHour = clock.getHours();
   const nowMinute = clock.getMinutes();
-  const canPunchInNow = nowHour < 9 || (nowHour === 9 && nowMinute <= 45);
+  const canPunchInNow = nowHour < 10 || (nowHour === 10 && nowMinute <= 45);
   const canPunchOutNow = nowHour > 13 || (nowHour === 13 && nowMinute >= 0);
 
   const handlePunchIn = async () => {
@@ -258,9 +272,9 @@ function EmployeeHome() {
     const days = [];
     for (let d = 1; d <= lastDay.getDate(); d++) {
       const date = new Date(year, month, d);
-      const isoKey = date.toISOString().slice(0, 10); // yyyy-mm-dd
-      const punchedIn = attendanceByDate[isoKey] === true;
-      days.push({ date, isoKey, punchedIn });
+      const key = date.toLocaleDateString('en-CA'); // "YYYY-MM-DD"
+      const punchedIn = !!attendanceByDate[key];
+      days.push({ date, isoKey: key, punchedIn });
     }
 
     const startWeekday = firstDay.getDay(); // 0 = Sunday
@@ -393,7 +407,7 @@ function EmployeeHome() {
             <button
               className="btn flex-fill punch-btn"
               onClick={handlePunchOut}
-              disabled={!status.punch_in || !!status.punch_out || !canPunchOutNow}
+              disabled={!status.punchIn && !status.punch_in ? true : (!status.punch_in || !!status.punch_out || !canPunchOutNow)}
             >
               Punch Out
             </button>
@@ -433,7 +447,7 @@ function EmployeeHome() {
                     Attendance Calendar – {monthName} {year}
                   </h5>
 
-                  <div className="calendar-header  mb-2">
+                  <div className="calendar-header mb-2">
                     {weekDays.map((d) => (
                       <div key={d} className="calendar-cell calendar-header-cell">
                         {d}
