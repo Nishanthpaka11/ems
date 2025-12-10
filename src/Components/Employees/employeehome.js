@@ -144,7 +144,7 @@ function EmployeeHome() {
     const hour = now.getHours();
     const minute = now.getMinutes();
     // allowed until 10:45 AM (inclusive)
-    return hour < 10 || (hour === 10 && minute <= 45);
+    return hour < 12 || (hour === 12 && minute <= 45);
   };
 
   const isPunchOutTimeAllowed = () => {
@@ -158,7 +158,7 @@ function EmployeeHome() {
   // derived booleans for button disabled state (uses live clock)
   const nowHour = clock.getHours();
   const nowMinute = clock.getMinutes();
-  const canPunchInNow = nowHour < 10 || (nowHour === 10 && nowMinute <= 45);
+  const canPunchInNow = nowHour < 12 || (nowHour === 12 && nowMinute <= 45);
   const canPunchOutNow = nowHour > 13 || (nowHour === 13 && nowMinute >= 0);
 
   const handlePunchIn = async () => {
