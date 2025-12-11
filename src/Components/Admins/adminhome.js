@@ -204,7 +204,8 @@ const AdminDashboard = () => {
 
         <div className="top-actions">
           <div className="search">
-            <i className="bi bi-search" aria-hidden="true" />
+            <span className="icon">🔎</span>
+            
             <input
               aria-label="Search by name or ID"
               placeholder="Search name or ID"
