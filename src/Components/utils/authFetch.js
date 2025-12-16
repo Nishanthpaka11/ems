@@ -9,7 +9,6 @@ export const authFetch = async (url, options = {}) => {
 
   const isFormData = options.body instanceof FormData;
 
-  // Set up headers only if not FormData
   const headers = {
     ...(isFormData ? {} : { 'Content-Type': 'application/json' }),
     ...(options.headers || {}),
@@ -22,6 +21,7 @@ export const authFetch = async (url, options = {}) => {
       headers,
     });
 
+    // 🔴 Logout ONLY if token is invalid
     if (response.status === 401 || response.status === 403) {
       localStorage.removeItem('token');
       localStorage.removeItem('user');
@@ -31,8 +31,8 @@ export const authFetch = async (url, options = {}) => {
 
     return response;
   } catch (error) {
-    console.error('authFetch error:', error);
-    window.location.href = '/';
-    return null;
+    // 🟢 DO NOT logout on network/server errors
+    console.error('authFetch network error:', error);
+    throw error; // let component handle it
   }
 };

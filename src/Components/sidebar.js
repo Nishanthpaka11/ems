@@ -142,11 +142,11 @@ const Sidebar = ({ userRole = 'employee' }) => {
             path: '/employee-dashboard/tasks',
             icon: 'bi-list-check',
           },
-          {
+          /*{
             label: 'Punch Correction',
             path: '/employee-dashboard/correction',
             icon: 'bi-clock-fill',
-          },
+          },*/
         ];
 
   return (
@@ -167,12 +167,13 @@ const Sidebar = ({ userRole = 'employee' }) => {
 
       {/* Sidebar */}
       <aside className={`sidebar ${open ? 'sidebar-open' : ''}`}>
-        <div className="sidebar-header">
-          <div className="brand">
-            <i className="bi bi-building"></i>
-            <span>ISAR EMS</span>
-          </div>
-        </div>
+       <div className="sidebar-header">
+  <div className="brand">
+   
+    <span>ISAR EMS</span>
+  </div>
+</div>
+
 
         {/* USER PROFILE SECTION */}
         <div
