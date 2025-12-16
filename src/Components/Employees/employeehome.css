@@ -1,40 +1,21 @@
-/* Overall Layout */
+/* ---------------------------------------------------
+   GLOBAL LAYOUT
+--------------------------------------------------- */
 .employee-dashboard {
   min-height: 100vh;
   background: linear-gradient(135deg, #f4f7fc, #eaf1ff);
   font-family: 'Poppins', sans-serif;
-    /* 👇 add these */
-  overflow-y: auto;
-  padding-bottom: 2rem; /* so last section isn’t glued to bottom */
-
 }
 
-/* Header */
-.dashboard-header {
-  background: linear-gradient(90deg, #0052d4, #4364f7, #6fb1fc);
-  color: white;
-  padding: 1.2rem 2rem;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  border-bottom-left-radius: 20px;
-  border-bottom-right-radius: 20px;
-}
-
-.clock-display {
-  font-size: 1.2rem;
-  font-weight: 500;
-  display: flex;
-  align-items: center;
-}
-
-/* Info Cards */
+/* ---------------------------------------------------
+   INFO CARDS
+--------------------------------------------------- */
 .info-card {
   border-radius: 16px;
   text-align: center;
   padding: 1.5rem;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-  transition: transform 0.25s ease-in-out, box-shadow 0.25s ease-in-out;
+  transition: transform 0.25s, box-shadow 0.25s;
 }
 
 .info-card:hover {
@@ -42,12 +23,11 @@
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
 }
 
-.info-card .icon-lg {
+.icon-lg {
   font-size: 2rem;
   margin-bottom: 0.5rem;
 }
 
-/* Gradient Backgrounds */
 .gradient-blue {
   background: linear-gradient(135deg, #007bff, #00c6ff);
 }
@@ -56,194 +36,187 @@
   background: linear-gradient(135deg, #5060d6, #8fa6cd);
 }
 
-/* WiFi card dynamic color */
 .wifi-allowed {
   background: linear-gradient(135deg, #28a745, #5cd65c);
-  transition: background 0.4s ease-in-out;
 }
 
 .wifi-restricted {
   background: linear-gradient(135deg, #dc3545, #ff6b6b);
-  transition: background 0.4s ease-in-out;
 }
 
-/* Dashboard Card */
+/* ---------------------------------------------------
+   MAIN CARD
+--------------------------------------------------- */
 .dashboard-card {
   background: #ffffff;
   border-radius: 20px;
   padding: 2rem;
-  margin-top: 1rem;
-  transition: all 0.3s ease;
+  transition: all 0.3s;
 }
 
 .dashboard-card:hover {
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
 }
 
-/* Punch Buttons */
+/* ---------------------------------------------------
+   PUNCH BUTTONS
+--------------------------------------------------- */
 .punch-btn {
   font-size: 1rem;
   font-weight: 600;
   border-radius: 10px;
   background-color: #db0c0c;
   padding: 0.7rem 1.5rem;
-  transition: all 0.2s ease-in-out;
+  transition: transform 0.2s;
 }
 
 .punch-btns {
   font-size: 1rem;
   font-weight: 600;
   border-radius: 10px;
+  background-color: #28a745;
   padding: 0.7rem 1.5rem;
-  transition: all 0.2s ease-in-out;
+  transition: transform 0.2s;
 }
 
-/* Hover effect */
-.punch-btn:hover {
-  transform: scale(1.04);
+.punch-btn:hover,
+.punch-btns:hover {
+  transform: scale(1.05);
 }
 
-/* 🖥️ Smaller buttons on desktop screens */
+/* Desktop tweak */
 @media (min-width: 992px) {
-  .punch-btn {
+  .punch-btn,
+  .punch-btns {
     font-size: 0.85rem;
-    padding: 0.4rem 1rem;
-    min-width: 100px;
+    padding: 0.5rem 1rem;
   }
 }
 
-/* 📱 Larger, touch-friendly buttons on mobile */
-@media (max-width: 991px) {
-  .punch-btn {
-    font-size: 1rem;
-    padding: 0.7rem 1.4rem;
-  }
-}
-
-/* Button spacing */
-.d-flex.gap-3.mt-4 .btn {
-  min-width: 120px;
-}
-
-/* Photo Upload Section */
-.photo-section {
-  margin-top: 1rem;
-}
-
-/* Responsive */
-@media (max-width: 768px) {
-  .dashboard-header {
-    flex-direction: column;
-    text-align: center;
-  }
-
-  .info-card {
-    padding: 1rem;
-  }
-
-  .punch-btn {
-    font-size: 0.85rem;
-    padding: 0.45rem 0.9rem;
-  }
-}
-
-/* 🗓️ Attendance Calendar */
+/* ---------------------------------------------------
+   CALENDAR STYLING
+--------------------------------------------------- */
 .attendance-calendar {
-  border-top: 1px solid #e5e5e5;
-  padding-top: 1rem;
+  border-radius: 12px;
+  padding: 1rem;
+  background: #ffffff;
+  box-shadow: 0 4px 12px rgba(203, 205, 209, 0.08);
 }
 
+/* Weekday header row */
 .calendar-header {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
-  gap: 0.25rem;
-}
-
-.calendar-grid {
-  display: grid;
-  grid-template-columns: repeat(7, 1fr);
-  gap: 0.25rem;
-}
-
-.calendar-cell {
-  min-height: 40px;
-  border-radius: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 0.85rem;
+  gap: 6px;
 }
 
 .calendar-header-cell {
+  text-align: center;
   font-weight: 600;
-  color: #6c757d;
-  background: #f3f4f6;
+  padding: 8px;
+  border-radius: 8px;
+  background: #f3f6fa;
+  color: #6a6f77;
 }
 
+/* Calendar grid */
+.calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 6px;
+  margin-top: 8px;
+}
+
+/* Empty first-week cells */
 .empty-cell {
   background: transparent;
 }
 
+/* Day cells */
 .day-cell {
-  position: relative;
-  font-weight: 600;
-  color: #ffffff;
-}
-
-/* ✅ Green if punched in */
-.day-present {
-  background: #28a745;
-}
-
-/* ❌ Red if not punched in */
-.day-absent {
-  background: #dc3545;
-}
-
-/* Day number styling */
-.day-number {
+  min-height: 48px;
+  border-radius: 10px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: flex-end;
+  padding: 6px;
   font-size: 0.9rem;
+  font-weight: 600;
+  transition: transform 0.1s ease;
+  background: #ffffff;
+  border: 1px solid #eaeaea;
+}
+
+/* Hover effect for past days */
+.day-cell:hover {
+  transform: translateY(-3px);
+}
+
+/* --------------------------
+   COLORS
+--------------------------- */
+
+/* Present day (punched in) */
+.day-present {
+  background: linear-gradient(135deg, #2ecc71, #1e9b4a);
+  color: white;
+  border: none;
+}
+
+/* Past without punch */
+.day-absent {
+  background: linear-gradient(135deg, #e74c3c, #c0392b);
+  color: white;
+  border: none;
+}
+
+/* Future days (no attendance expected) */
+.day-future {
+  background: #ffffff;
+  border: 1px solid #dcdcdc;
+  color: #444;
+  opacity: 0.9;
+}
+
+/* Day number */
+.day-number {
+  padding: 4px 6px;
+
+  border-radius: 6px;
 }
 
 /* Legend */
 .calendar-legend {
-  font-size: 0.85rem;
-  color: #6c757d;
+  margin-top: 12px;
+  display: flex;
+  align-items: center;
+  gap: 15px;
 }
 
 .legend-box {
-  display: inline-block;
   width: 14px;
   height: 14px;
-  border-radius: 4px;
-  margin-right: 4px;
-  vertical-align: middle;
-}
-/* Future dates - neutral white */
-.day-future {
-  background: #ffffff !important;
-  color: #444 !important;
-  border: 1px solid #ddd !important;
+  border-radius: 3px;
+  display: inline-block;
 }
 
-/* Already exist, but ensure colors override future */
-.day-present {
-  background: #28a745 !important;
-  color: #fff !important;
+.legend-box.day-present {
+  background: linear-gradient(135deg, #2ecc71, #1e9b4a);
 }
 
-.day-absent {
-  background: #dc3545 !important;
-  color: #fff !important;
-}
-.calendar-header {
-  display: grid;
-  grid-template-columns: repeat(7, 1fr);
-  gap: 0.25rem;
+.legend-box.day-absent {
+  background: linear-gradient(135deg, #e74c3c, #c0392b);
 }
 
-.calendar-grid {
-  display: grid;
-  grid-template-columns: repeat(7, 1fr);
-  gap: 0.25rem;
+/* ---------------------------------------------------
+   RESPONSIVE
+--------------------------------------------------- */
+@media (max-width: 576px) {
+  .day-cell {
+    min-height: 40px;
+    padding: 4px;
+  }
+  .calendar-header-cell {
+    font-size: 0.75rem;
+  }
 }

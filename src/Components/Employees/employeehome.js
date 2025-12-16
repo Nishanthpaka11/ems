@@ -1,3 +1,4 @@
+// EmployeeHome.js
 import React, { useEffect, useState, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -19,7 +20,7 @@ function EmployeeHome() {
   const [ip, setIp] = useState('');
   const [wifiAllowed, setWifiAllowed] = useState(false);
   const [workDuration, setWorkDuration] = useState('00h 00m 00s');
-  const [attendanceByDate, setAttendanceByDate] = useState({}); // map of date -> punched_in
+  const [attendanceByDate, setAttendanceByDate] = useState({}); // map of YYYY-MM-DD -> boolean
 
   useEffect(() => {
     if (!token || !user) navigate('/');
@@ -43,6 +44,18 @@ function EmployeeHome() {
     }
   }, [API_BASE]);
 
+  // Defensive normalization:
+  // - if backend gives "YYYY-MM-DD" use it as-is
+  // - otherwise try new Date(...) and convert to en-CA (local date)
+  const normalizeToISODate = (raw) => {
+    if (!raw) return null;
+    // already YYYY-MM-DD?
+    if (/^\d{4}-\d{2}-\d{2}$/.test(raw)) return raw;
+    const d = new Date(raw);
+    if (Number.isNaN(d.getTime())) return null;
+    return d.toLocaleDateString('en-CA'); // YYYY-MM-DD (local)
+  };
+
   const fetchAttendanceHistory = useCallback(async () => {
     try {
       const res = await authFetch(`${API_BASE}/api/attendance/history`);
@@ -51,8 +64,10 @@ function EmployeeHome() {
 
       const mapped = {};
       data.forEach((item) => {
-        // Normalize backend date -> "YYYY-MM-DD" (local time)
-        const key = new Date(item.date).toLocaleDateString('en-CA');
+        // item.date could be '2025-12-11' or ISO '2025-12-11T04:00:00Z'
+        const key = normalizeToISODate(item.date);
+        if (!key) return;
+        // consider item.punched_in truthy values
         mapped[key] = !!item.punched_in;
       });
 
@@ -112,10 +127,11 @@ function EmployeeHome() {
     return () => clearInterval(interval);
   }, [status.punch_in, status.punch_out]);
 
-  // ✅ FORCE TODAY AS PRESENT WHEN PUNCHED IN
+  // FORCE TODAY AS PRESENT WHEN PUNCHED IN (local date wise)
   useEffect(() => {
     if (!status.punch_in) return;
-    const key = new Date(status.punch_in).toLocaleDateString('en-CA'); // "YYYY-MM-DD"
+    const key = normalizeToISODate(status.punch_in);
+    if (!key) return;
     setAttendanceByDate((prev) => ({
       ...prev,
       [key]: true,
@@ -138,13 +154,15 @@ function EmployeeHome() {
     return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
   };
 
-  // ⏰ TIME WINDOW HELPERS
+  // TIME WINDOW HELPERS (kept same as you had)
   const isPunchInTimeAllowed = () => {
     const now = new Date();
     const hour = now.getHours();
     const minute = now.getMinutes();
     // allowed until 10:45 AM (inclusive)
+
     return hour < 12 || (hour === 12 && minute <= 45);
+    
   };
 
   const isPunchOutTimeAllowed = () => {
@@ -272,9 +290,10 @@ function EmployeeHome() {
     const days = [];
     for (let d = 1; d <= lastDay.getDate(); d++) {
       const date = new Date(year, month, d);
-      const key = date.toLocaleDateString('en-CA'); // "YYYY-MM-DD"
-      const punchedIn = !!attendanceByDate[key];
-      days.push({ date, isoKey: key, punchedIn });
+      // isoKey should be local YYYY-MM-DD (no timezone conversions)
+      const isoKey = date.toLocaleDateString('en-CA');
+      const punchedIn = !!attendanceByDate[isoKey];
+      days.push({ date, isoKey, punchedIn });
     }
 
     const startWeekday = firstDay.getDay(); // 0 = Sunday
@@ -407,7 +426,7 @@ function EmployeeHome() {
             <button
               className="btn flex-fill punch-btn"
               onClick={handlePunchOut}
-              disabled={!status.punchIn && !status.punch_in ? true : (!status.punch_in || !!status.punch_out || !canPunchOutNow)}
+              disabled={!status.punch_in || !!status.punch_out || !canPunchOutNow}
             >
               Punch Out
             </button>
@@ -461,15 +480,12 @@ function EmployeeHome() {
                     ))}
 
                     {days.map(({ date, isoKey, punchedIn }) => {
-                      const today = new Date();
-                      today.setHours(0, 0, 0, 0);
-
-                      const dayDate = new Date(date);
-                      dayDate.setHours(0, 0, 0, 0);
+                      // Use YYYY-MM-DD string compare to avoid timezone issues
+                      const todayKey = new Date().toLocaleDateString('en-CA'); // "YYYY-MM-DD"
 
                       let dayStatusClass = '';
 
-                      if (dayDate > today) {
+                      if (isoKey > todayKey) {
                         dayStatusClass = 'day-future';
                       } else if (punchedIn) {
                         dayStatusClass = 'day-present';

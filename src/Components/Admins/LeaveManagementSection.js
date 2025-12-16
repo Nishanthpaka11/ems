@@ -149,7 +149,7 @@ function LeaveManagementSection() {
     <section className="leave-dashboard">
       <header className="dashboard-header">
         <div>
-          <h2 className="dashboard-title">Admin Leave Dashboard</h2>
+          <h2 className="dashboard-title"> Admin Leave Dashboard </h2>
           <p className="dashboard-subtitle">Monitor requests, approve quickly, and keep track of team leave trends.</p>
         </div>
       </header>

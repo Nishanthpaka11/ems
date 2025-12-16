@@ -115,7 +115,8 @@ const EmployeeProfileViewer = () => {
       <div className="viewer-header">
         <h1 className="viewer-title">Employees</h1>
         <div className="search-bar">
-          <i className="bi bi-search"></i>
+          <i className="icon">🔎</i>
+          
           <input
             type="text"
             placeholder="Search employees..."

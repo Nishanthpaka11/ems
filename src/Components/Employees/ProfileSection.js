@@ -141,11 +141,11 @@ export default function ProfileSection() {
           />
           <div className="profile-info">
             <h3 className="profile-name">
-              <i className="bi bi-person-circle me-2 text-primary"></i>
+              <i className=" me-2 text-primary"></i>
               {profile.name || "—"}
             </h3>
             <p className="profile-role text-muted">
-              <i className="bi bi-briefcase me-2"></i>
+              <i className=" me-2"></i>
               {profile.role || "Employee"} • {profile.department || "IT"}
             </p>
           </div>
