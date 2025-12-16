@@ -100,14 +100,18 @@ function EmployeeHome() {
     }
   }, [API_BASE, user]);
 
-  useEffect(() => {
-    fetchStatus();
-    verifyIPs();
-    fetchAttendanceHistory();
+useEffect(() => {
+  fetchStatus();
+  verifyIPs();
 
-    const interval = setInterval(fetchStatus, 10000);
-    return () => clearInterval(interval);
-  }, [fetchStatus, verifyIPs, fetchAttendanceHistory]);
+  const interval = setInterval(fetchStatus, 15000); // less aggressive
+  return () => clearInterval(interval);
+}, [fetchStatus, verifyIPs]);
+
+useEffect(() => {
+  fetchAttendanceHistory(); // run once only
+}, [fetchAttendanceHistory]);
+
 
   useEffect(() => {
     let interval = null;
