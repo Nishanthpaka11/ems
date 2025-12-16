@@ -1,6 +1,5 @@
-import React, { useEffect, useState, useCallback, useMemo } from 'react';
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell, PieChart, Pie } from 'recharts';
-import { Users, UserX, Clock, Activity, Download } from 'lucide-react';
+import React, { useEffect, useState, useCallback } from 'react';
+import { Download } from 'lucide-react';
 import './AdminAttendanceSummary.css';
 
 const AdminAttendanceSummary = () => {
@@ -11,7 +10,7 @@ const AdminAttendanceSummary = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  const BASE_URL = process.env.REACT_APP_API_URL || process.env.REACT_APP_API_BASE_URL;
+  const BASE_URL = process.env.REACT_APP_API_URL || process.env.REACT_APP_API_BASE_URL || '';
 
   const fetchData = useCallback(async () => {
     setLoading(true);
@@ -39,6 +38,10 @@ const AdminAttendanceSummary = () => {
         setError(`Auth Error: ${errorData.message}`);
         setLoading(false);
         return;
+      }
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
       }
 
       const data = await response.json();
@@ -132,139 +135,11 @@ const AdminAttendanceSummary = () => {
 
   const months = [...new Set(summaryData.map(item => item.month))];
 
-  // ============================================
-  //  DYNAMIC DASHBOARD CALCULATIONS
-  // ============================================
-
-  // 1. Calculate Top Stat Cards
-  const stats = useMemo(() => {
-    const totalEmployees = filteredData.length;
-    const totalDaysWorked = filteredData.reduce((acc, curr) => acc + (curr.present_days || 0), 0);
-    const totalPossibleDays = filteredData.reduce((acc, curr) => acc + (curr.total_working_days || 1), 0);
-    
-    // Calculate Attendance %
-    const attendanceRate = totalPossibleDays > 0 ? ((totalDaysWorked / totalPossibleDays) * 100).toFixed(1) : 0;
-    
-    // Estimate "Low Attendance" (Anyone with < 50% attendance)
-    const absentCount = filteredData.filter(d => (d.present_days / d.total_working_days) < 0.5).length;
-
-    return { totalEmployees, attendanceRate, absentCount, totalDaysWorked };
-  }, [filteredData]);
-
-  // 2. Calculate Department Data (Real-time)
-  const deptData = useMemo(() => {
-    const deptMap = {};
-
-    filteredData.forEach(emp => {
-      // NOTE: If your API does not have 'department', this defaults to 'General'
-      const deptName = emp.department || 'General'; 
-      
-      if (!deptMap[deptName]) {
-        deptMap[deptName] = { totalDays: 0, presentDays: 0 };
-      }
-      
-      deptMap[deptName].totalDays += (emp.total_working_days || 1);
-      deptMap[deptName].presentDays += (emp.present_days || 0);
-    });
-
-    return Object.keys(deptMap).map(key => {
-      const d = deptMap[key];
-      const percentage = d.totalDays > 0 ? ((d.presentDays / d.totalDays) * 100).toFixed(0) : 0;
-      return { name: key, value: Number(percentage) };
-    });
-  }, [filteredData]);
-
-  // 3. Pie Chart Data (Static for now as API lacks location data)
-  const pieData = [
-    { name: 'Office', value: 100, color: '#4f46e5' }, 
-    { name: 'Remote', value: 0, color: '#f87171' }
-  ];
-
   return (
     <div className="admin-summary-container">
       <div className="dashboard-header">
         <h2>HR Attendance Dashboard</h2>
         <p className="dashboard-subtitle">Overview of employee performance and presence</p>
-      </div>
-
-      {/* --- STATS SECTION --- */}
-      <div className="stats-grid">
-        <div className="stat-card">
-            <div className="stat-icon-bg blue"><Users size={24} className="text-blue-600" /></div>
-            <div>
-                <h4>Total Employees</h4>
-                <h3>{stats.totalEmployees}</h3>
-            </div>
-        </div>
-        <div className="stat-card">
-            <div className="stat-icon-bg red"><UserX size={24} className="text-red-600" /></div>
-            <div>
-                <h4>Low Attendance</h4>
-                <h3>{stats.absentCount}</h3>
-            </div>
-        </div>
-        <div className="stat-card">
-            <div className="stat-icon-bg orange"><Clock size={24} className="text-orange-600" /></div>
-            <div>
-                <h4>Total Man-Days</h4>
-                <h3>{stats.totalDaysWorked}</h3>
-            </div>
-        </div>
-        <div className="stat-card">
-            <div className="stat-icon-bg purple"><Activity size={24} className="text-purple-600" /></div>
-            <div>
-                <h4>Avg Attendance</h4>
-                <h3>{stats.attendanceRate}%</h3>
-            </div>
-        </div>
-      </div>
-
-      {/* --- CHARTS SECTION --- */}
-      <div className="charts-grid">
-        {/* Department Chart */}
-        <div className="chart-box">
-            <h3>Attendance by Department</h3>
-            <div style={{ width: '100%', height: 250 }}>
-                <ResponsiveContainer>
-                    <BarChart layout="vertical" data={deptData} margin={{ left: 10, right: 30 }}>
-                        <XAxis type="number" domain={[0, 100]} hide />
-                        <YAxis dataKey="name" type="category" width={80} tick={{fontSize: 12}} />
-                        <Tooltip />
-                        <Bar dataKey="value" barSize={20} radius={[0, 4, 4, 0]}>
-                            {deptData.map((entry, index) => (
-                                <Cell key={`cell-${index}`} fill="#6366f1" />
-                            ))}
-                        </Bar>
-                    </BarChart>
-                </ResponsiveContainer>
-            </div>
-        </div>
-
-        {/* Location Chart */}
-        <div className="chart-box">
-             <h3>Work Mode</h3>
-             <div className="pie-chart-wrapper" style={{ width: '100%', height: 250 }}>
-                <ResponsiveContainer>
-                    <PieChart>
-                        <Pie 
-                          data={pieData} 
-                          innerRadius={60} 
-                          outerRadius={80} 
-                          dataKey="value" 
-                        >
-                            {pieData.map((entry, index) => (
-                                <Cell key={`cell-${index}`} fill={entry.color} />
-                            ))}
-                        </Pie>
-                        <Tooltip />
-                    </PieChart>
-                </ResponsiveContainer>
-                <div className="pie-center-text">
-                    <span>{stats.totalEmployees}</span>
-                    <small>Total</small>
-                </div>
-             </div>
-        </div>
       </div>
 
       {error && <p className="error-message">{error}</p>}
@@ -284,7 +159,7 @@ const AdminAttendanceSummary = () => {
           ))}
         </select>
         <button className="download-button" onClick={downloadCSV}>
-          <Download size={16} style={{marginRight: '8px'}}/> Download CSV
+          <Download size={16} style={{ marginRight: '8px' }} /> Download CSV
         </button>
       </div>
 
@@ -292,44 +167,44 @@ const AdminAttendanceSummary = () => {
         <p>Loading...</p>
       ) : (
         <div className="table-wrapper">
-            <table className="admin-summary-table">
+          <table className="admin-summary-table">
             <thead>
-                <tr>
+              <tr>
                 <th>Employee ID</th>
                 <th>Name</th>
                 <th>Present Days</th>
                 <th>Total Working Days</th>
                 <th>Actions</th>
-                </tr>
+              </tr>
             </thead>
             <tbody>
-                {filteredData.length > 0 ? (
+              {filteredData.length > 0 ? (
                 filteredData.map((record, index) => (
-                    <tr key={record._id || `${record.employee_id}-${record.month}`}>
+                  <tr key={record._id || `${record.employee_id}-${record.month}`}>
                     <td>{record.employee_id}</td>
                     <td>{record.employee_name}</td>
                     <td>
-                        <input
+                      <input
                         type="number"
                         value={record.present_days}
                         onChange={(e) => handlePresentDaysChange(index, e.target.value)}
                         min={0}
                         max={record.total_working_days}
-                        />
+                      />
                     </td>
                     <td>{record.total_working_days}</td>
                     <td>
-                        <button onClick={() => handleSave(record._id, record.present_days)}>
+                      <button onClick={() => handleSave(record._id, record.present_days)}>
                         Save
-                        </button>
+                      </button>
                     </td>
-                    </tr>
+                  </tr>
                 ))
-                ) : (
+              ) : (
                 <tr><td colSpan="5">No data found.</td></tr>
-                )}
+              )}
             </tbody>
-            </table>
+          </table>
         </div>
       )}
     </div>

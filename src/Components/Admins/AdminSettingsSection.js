@@ -66,8 +66,8 @@ const AdminSettingsSection = () => {
         },
         body: JSON.stringify({
           allowed_ips: formattedIps,
-          working_start: startTime,
-          working_end: endTime
+          working_hours_start: startTime,
+          working_hours_end: endTime
         })
       });
 
