@@ -132,31 +132,52 @@ const AdminAttendanceSummary = () => {
 
   const months = [...new Set(summaryData.map(item => item.month))];
 
-  // --- NEW: CALCULATED METRICS FOR DASHBOARD ---
+  // ============================================
+  //  DYNAMIC DASHBOARD CALCULATIONS
+  // ============================================
+
+  // 1. Calculate Top Stat Cards
   const stats = useMemo(() => {
     const totalEmployees = filteredData.length;
     const totalDaysWorked = filteredData.reduce((acc, curr) => acc + (curr.present_days || 0), 0);
     const totalPossibleDays = filteredData.reduce((acc, curr) => acc + (curr.total_working_days || 1), 0);
     
-    // Calculate simple attendance percentage
+    // Calculate Attendance %
     const attendanceRate = totalPossibleDays > 0 ? ((totalDaysWorked / totalPossibleDays) * 100).toFixed(1) : 0;
     
-    // Estimate "Absent" as anyone with less than 50% attendance (Since we don't have daily data)
+    // Estimate "Low Attendance" (Anyone with < 50% attendance)
     const absentCount = filteredData.filter(d => (d.present_days / d.total_working_days) < 0.5).length;
 
     return { totalEmployees, attendanceRate, absentCount, totalDaysWorked };
   }, [filteredData]);
 
-  // --- MOCK DATA FOR CHARTS (Since API doesn't provide Department yet) ---
-  const deptData = [
-    { name: 'Finance', value: 94 }, { name: 'IT', value: 91 },
-    { name: 'Sales', value: 85 }, { name: 'HR', value: 82 },
-    { name: 'Marketing', value: 81 }, { name: 'Admin', value: 75 }
-  ];
+  // 2. Calculate Department Data (Real-time)
+  const deptData = useMemo(() => {
+    const deptMap = {};
 
+    filteredData.forEach(emp => {
+      // NOTE: If your API does not have 'department', this defaults to 'General'
+      const deptName = emp.department || 'General'; 
+      
+      if (!deptMap[deptName]) {
+        deptMap[deptName] = { totalDays: 0, presentDays: 0 };
+      }
+      
+      deptMap[deptName].totalDays += (emp.total_working_days || 1);
+      deptMap[deptName].presentDays += (emp.present_days || 0);
+    });
+
+    return Object.keys(deptMap).map(key => {
+      const d = deptMap[key];
+      const percentage = d.totalDays > 0 ? ((d.presentDays / d.totalDays) * 100).toFixed(0) : 0;
+      return { name: key, value: Number(percentage) };
+    });
+  }, [filteredData]);
+
+  // 3. Pie Chart Data (Static for now as API lacks location data)
   const pieData = [
-    { name: 'Home', value: 45, color: '#f87171' }, 
-    { name: 'Office', value: 55, color: '#881337' }
+    { name: 'Office', value: 100, color: '#4f46e5' }, 
+    { name: 'Remote', value: 0, color: '#f87171' }
   ];
 
   return (
@@ -166,7 +187,7 @@ const AdminAttendanceSummary = () => {
         <p className="dashboard-subtitle">Overview of employee performance and presence</p>
       </div>
 
-      {/* --- 1. STAT CARDS SECTION --- */}
+      {/* --- STATS SECTION --- */}
       <div className="stats-grid">
         <div className="stat-card">
             <div className="stat-icon-bg blue"><Users size={24} className="text-blue-600" /></div>
@@ -192,26 +213,26 @@ const AdminAttendanceSummary = () => {
         <div className="stat-card">
             <div className="stat-icon-bg purple"><Activity size={24} className="text-purple-600" /></div>
             <div>
-                <h4>Attendance Rate</h4>
+                <h4>Avg Attendance</h4>
                 <h3>{stats.attendanceRate}%</h3>
             </div>
         </div>
       </div>
 
-      {/* --- 2. CHARTS SECTION --- */}
+      {/* --- CHARTS SECTION --- */}
       <div className="charts-grid">
-        {/* Bar Chart: Dept Attendance */}
+        {/* Department Chart */}
         <div className="chart-box">
             <h3>Attendance by Department</h3>
             <div style={{ width: '100%', height: 250 }}>
                 <ResponsiveContainer>
-                    <BarChart layout="vertical" data={deptData} margin={{ left: 10, right: 10 }}>
-                        <XAxis type="number" hide />
-                        <YAxis dataKey="name" type="category" width={70} tick={{fontSize: 12}} />
+                    <BarChart layout="vertical" data={deptData} margin={{ left: 10, right: 30 }}>
+                        <XAxis type="number" domain={[0, 100]} hide />
+                        <YAxis dataKey="name" type="category" width={80} tick={{fontSize: 12}} />
                         <Tooltip />
-                        <Bar dataKey="value" barSize={15} radius={[0, 4, 4, 0]}>
+                        <Bar dataKey="value" barSize={20} radius={[0, 4, 4, 0]}>
                             {deptData.map((entry, index) => (
-                                <Cell key={`cell-${index}`} fill="#818cf8" />
+                                <Cell key={`cell-${index}`} fill="#6366f1" />
                             ))}
                         </Bar>
                     </BarChart>
@@ -219,9 +240,9 @@ const AdminAttendanceSummary = () => {
             </div>
         </div>
 
-        {/* Pie Chart: Work Location (Visual Placeholder) */}
+        {/* Location Chart */}
         <div className="chart-box">
-             <h3>Work Location Breakdown</h3>
+             <h3>Work Mode</h3>
              <div className="pie-chart-wrapper" style={{ width: '100%', height: 250 }}>
                 <ResponsiveContainer>
                     <PieChart>
@@ -238,7 +259,6 @@ const AdminAttendanceSummary = () => {
                         <Tooltip />
                     </PieChart>
                 </ResponsiveContainer>
-                {/* Custom Legend/Center Text */}
                 <div className="pie-center-text">
                     <span>{stats.totalEmployees}</span>
                     <small>Total</small>
@@ -249,7 +269,7 @@ const AdminAttendanceSummary = () => {
 
       {error && <p className="error-message">{error}</p>}
 
-      {/* --- 3. EXISTING CONTROLS & TABLE --- */}
+      {/* --- CONTROLS & TABLE --- */}
       <div className="admin-summary-controls">
         <input
           type="text"
@@ -257,14 +277,12 @@ const AdminAttendanceSummary = () => {
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
         />
-
         <select value={selectedMonth} onChange={(e) => setSelectedMonth(e.target.value)}>
           <option value="">All Months</option>
           {months.map((month, index) => (
             <option key={index} value={month}>{month}</option>
           ))}
         </select>
-
         <button className="download-button" onClick={downloadCSV}>
           <Download size={16} style={{marginRight: '8px'}}/> Download CSV
         </button>
