@@ -1,4 +1,6 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback, useMemo } from 'react';
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell, PieChart, Pie } from 'recharts';
+import { Users, UserX, Clock, Activity, Download } from 'lucide-react';
 import './AdminAttendanceSummary.css';
 
 const AdminAttendanceSummary = () => {
@@ -89,12 +91,10 @@ const AdminAttendanceSummary = () => {
   const handleSave = async (id, present_days) => {
     try {
       const token = localStorage.getItem('token');
-
       if (!token) {
         alert("Token not found. Please login again.");
         return;
       }
-
       const response = await fetch(`${BASE_URL}/api/monthly-summary/${id}`, {
         method: 'PUT',
         headers: {
@@ -103,7 +103,6 @@ const AdminAttendanceSummary = () => {
         },
         body: JSON.stringify({ present_days }),
       });
-
       const result = await response.json();
       if (response.ok) {
         fetchData();
@@ -122,11 +121,9 @@ const AdminAttendanceSummary = () => {
         [row.employee_id, row.employee_name, row.present_days, row.total_working_days]
       ),
     ];
-
     const csvContent =
       'data:text/csv;charset=utf-8,' +
       csvRows.map(e => e.join(',')).join('\n');
-
     const link = document.createElement('a');
     link.href = encodeURI(csvContent);
     link.download = 'attendance_summary.csv';
@@ -135,12 +132,124 @@ const AdminAttendanceSummary = () => {
 
   const months = [...new Set(summaryData.map(item => item.month))];
 
+  // --- NEW: CALCULATED METRICS FOR DASHBOARD ---
+  const stats = useMemo(() => {
+    const totalEmployees = filteredData.length;
+    const totalDaysWorked = filteredData.reduce((acc, curr) => acc + (curr.present_days || 0), 0);
+    const totalPossibleDays = filteredData.reduce((acc, curr) => acc + (curr.total_working_days || 1), 0);
+    
+    // Calculate simple attendance percentage
+    const attendanceRate = totalPossibleDays > 0 ? ((totalDaysWorked / totalPossibleDays) * 100).toFixed(1) : 0;
+    
+    // Estimate "Absent" as anyone with less than 50% attendance (Since we don't have daily data)
+    const absentCount = filteredData.filter(d => (d.present_days / d.total_working_days) < 0.5).length;
+
+    return { totalEmployees, attendanceRate, absentCount, totalDaysWorked };
+  }, [filteredData]);
+
+  // --- MOCK DATA FOR CHARTS (Since API doesn't provide Department yet) ---
+  const deptData = [
+    { name: 'Finance', value: 94 }, { name: 'IT', value: 91 },
+    { name: 'Sales', value: 85 }, { name: 'HR', value: 82 },
+    { name: 'Marketing', value: 81 }, { name: 'Admin', value: 75 }
+  ];
+
+  const pieData = [
+    { name: 'Home', value: 45, color: '#f87171' }, 
+    { name: 'Office', value: 55, color: '#881337' }
+  ];
+
   return (
     <div className="admin-summary-container">
-      <h2>Attendance Summary</h2>
+      <div className="dashboard-header">
+        <h2>HR Attendance Dashboard</h2>
+        <p className="dashboard-subtitle">Overview of employee performance and presence</p>
+      </div>
+
+      {/* --- 1. STAT CARDS SECTION --- */}
+      <div className="stats-grid">
+        <div className="stat-card">
+            <div className="stat-icon-bg blue"><Users size={24} className="text-blue-600" /></div>
+            <div>
+                <h4>Total Employees</h4>
+                <h3>{stats.totalEmployees}</h3>
+            </div>
+        </div>
+        <div className="stat-card">
+            <div className="stat-icon-bg red"><UserX size={24} className="text-red-600" /></div>
+            <div>
+                <h4>Low Attendance</h4>
+                <h3>{stats.absentCount}</h3>
+            </div>
+        </div>
+        <div className="stat-card">
+            <div className="stat-icon-bg orange"><Clock size={24} className="text-orange-600" /></div>
+            <div>
+                <h4>Total Man-Days</h4>
+                <h3>{stats.totalDaysWorked}</h3>
+            </div>
+        </div>
+        <div className="stat-card">
+            <div className="stat-icon-bg purple"><Activity size={24} className="text-purple-600" /></div>
+            <div>
+                <h4>Attendance Rate</h4>
+                <h3>{stats.attendanceRate}%</h3>
+            </div>
+        </div>
+      </div>
+
+      {/* --- 2. CHARTS SECTION --- */}
+      <div className="charts-grid">
+        {/* Bar Chart: Dept Attendance */}
+        <div className="chart-box">
+            <h3>Attendance by Department</h3>
+            <div style={{ width: '100%', height: 250 }}>
+                <ResponsiveContainer>
+                    <BarChart layout="vertical" data={deptData} margin={{ left: 10, right: 10 }}>
+                        <XAxis type="number" hide />
+                        <YAxis dataKey="name" type="category" width={70} tick={{fontSize: 12}} />
+                        <Tooltip />
+                        <Bar dataKey="value" barSize={15} radius={[0, 4, 4, 0]}>
+                            {deptData.map((entry, index) => (
+                                <Cell key={`cell-${index}`} fill="#818cf8" />
+                            ))}
+                        </Bar>
+                    </BarChart>
+                </ResponsiveContainer>
+            </div>
+        </div>
+
+        {/* Pie Chart: Work Location (Visual Placeholder) */}
+        <div className="chart-box">
+             <h3>Work Location Breakdown</h3>
+             <div className="pie-chart-wrapper" style={{ width: '100%', height: 250 }}>
+                <ResponsiveContainer>
+                    <PieChart>
+                        <Pie 
+                          data={pieData} 
+                          innerRadius={60} 
+                          outerRadius={80} 
+                          dataKey="value" 
+                        >
+                            {pieData.map((entry, index) => (
+                                <Cell key={`cell-${index}`} fill={entry.color} />
+                            ))}
+                        </Pie>
+                        <Tooltip />
+                    </PieChart>
+                </ResponsiveContainer>
+                {/* Custom Legend/Center Text */}
+                <div className="pie-center-text">
+                    <span>{stats.totalEmployees}</span>
+                    <small>Total</small>
+                </div>
+             </div>
+        </div>
+      </div>
 
       {error && <p className="error-message">{error}</p>}
 
+      {/* --- 3. EXISTING CONTROLS & TABLE --- */}
       <div className="admin-summary-controls">
         <input
           type="text"
@@ -157,51 +266,53 @@ const AdminAttendanceSummary = () => {
         </select>
 
         <button className="download-button" onClick={downloadCSV}>
-          ⬇️ Download CSV
+          <Download size={16} style={{marginRight: '8px'}}/> Download CSV
         </button>
       </div>
 
       {loading ? (
         <p>Loading...</p>
       ) : (
-        <table className="admin-summary-table">
-          <thead>
-            <tr>
-              <th>Employee ID</th>
-              <th>Name</th>
-              <th>Present Days</th>
-              <th>Total Working Days</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filteredData.length > 0 ? (
-              filteredData.map((record, index) => (
-                <tr key={record._id || `${record.employee_id}-${record.month}`}>
-                  <td>{record.employee_id}</td>
-                  <td>{record.employee_name}</td>
-                  <td>
-                    <input
-                      type="number"
-                      value={record.present_days}
-                      onChange={(e) => handlePresentDaysChange(index, e.target.value)}
-                      min={0}
-                      max={record.total_working_days}
-                    />
-                  </td>
-                  <td>{record.total_working_days}</td>
-                  <td>
-                    <button onClick={() => handleSave(record._id, record.present_days)}>
-                      Save
-                    </button>
-                  </td>
+        <div className="table-wrapper">
+            <table className="admin-summary-table">
+            <thead>
+                <tr>
+                <th>Employee ID</th>
+                <th>Name</th>
+                <th>Present Days</th>
+                <th>Total Working Days</th>
+                <th>Actions</th>
                 </tr>
-              ))
-            ) : (
-              <tr><td colSpan="5">No data found.</td></tr>
-            )}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+                {filteredData.length > 0 ? (
+                filteredData.map((record, index) => (
+                    <tr key={record._id || `${record.employee_id}-${record.month}`}>
+                    <td>{record.employee_id}</td>
+                    <td>{record.employee_name}</td>
+                    <td>
+                        <input
+                        type="number"
+                        value={record.present_days}
+                        onChange={(e) => handlePresentDaysChange(index, e.target.value)}
+                        min={0}
+                        max={record.total_working_days}
+                        />
+                    </td>
+                    <td>{record.total_working_days}</td>
+                    <td>
+                        <button onClick={() => handleSave(record._id, record.present_days)}>
+                        Save
+                        </button>
+                    </td>
+                    </tr>
+                ))
+                ) : (
+                <tr><td colSpan="5">No data found.</td></tr>
+                )}
+            </tbody>
+            </table>
+        </div>
       )}
     </div>
   );
