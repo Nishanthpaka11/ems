@@ -8,6 +8,15 @@ const useDidMount = () => {
   return mounted;
 };
 
+// Helper to get YYYY-MM-DD format for local time (prevents timezone issues)
+const getTodayString = () => {
+  const d = new Date();
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+};
+
 const StatusPill = ({ status }) => {
   const s = (status || '').toLowerCase();
   return <span key={s} className={`status-pill ${s} animate-pulse-once`}>{status}</span>;
@@ -39,6 +48,7 @@ const LeaveSection = () => {
   const token = localStorage.getItem('token');
   const mounted = useDidMount();
 
+  // Resize listener
   useEffect(() => {
     const handleResize = () => {
       if (typeof window === 'undefined') return;
@@ -69,8 +79,35 @@ const LeaveSection = () => {
 
   useEffect(() => { fetchLeaves(); }, [fetchLeaves]);
 
+  // Handle Input Changes with Date Logic
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    
+    setForm((prev) => {
+      const newData = { ...prev, [name]: value };
+
+      // Logic: If Start Date changes, and existing End Date is now invalid (before start), clear End Date
+      if (name === 'start_date' && prev.end_date && value > prev.end_date) {
+        newData.end_date = ''; 
+      }
+      return newData;
+    });
+  };
+
   const handleApply = async (e) => {
     e.preventDefault();
+    setError('');
+    setMessage('');
+
+    // Logic: Validate Dates
+    const start = new Date(form.start_date);
+    const end = new Date(form.end_date);
+
+    if (end < start) {
+      setError('End date cannot be before start date.');
+      return;
+    }
+
     try {
       const res = await authFetch(`${API_BASE}/api/leaves`, {
         method: 'POST',
@@ -85,12 +122,10 @@ const LeaveSection = () => {
         throw new Error(errorData.message || 'Leave apply failed');
       }
       setForm({ start_date: '', end_date: '', reason: '' });
-      setMessage('✅ Leave applied successfully');
-      setError('');
+      setMessage('Leave applied successfully');
       fetchLeaves();
     } catch (err) {
       setError(err.message);
-      setMessage('');
     }
   };
 
@@ -104,7 +139,7 @@ const LeaveSection = () => {
         const errorData = await res.json();
         throw new Error(errorData.message || 'Cancel failed');
       }
-      setMessage('✅ Leave cancelled successfully');
+      setMessage('Leave cancelled successfully');
       setError('');
       fetchLeaves();
     } catch (err) {
@@ -138,6 +173,8 @@ const LeaveSection = () => {
   const approved = leaves.filter(l => (l.status || '').toLowerCase() === 'approved').length;
   const rejected = leaves.filter(l => (l.status || '').toLowerCase() === 'rejected').length;
 
+  const todayDate = getTodayString();
+
   return (
     <div className={`leave-page ${mounted ? 'animate-page-in' : ''}`}>
       <div className="leave-page-inner">
@@ -145,8 +182,7 @@ const LeaveSection = () => {
           <h2 className="page-title">Leaves</h2>
           <div className="search-actions">
             <div className="search">
-              <span className="icon">🔎</span>
-              
+              <span className="icon"></span>
               <input placeholder="Search reason or status" />
             </div>
           </div>
@@ -177,8 +213,10 @@ const LeaveSection = () => {
                 <label>Start Date</label>
                 <input
                   type="date"
+                  name="start_date"
                   value={form.start_date}
-                  onChange={(e) => setForm({ ...form, start_date: e.target.value })}
+                  onChange={handleInputChange}
+                  min={todayDate} // Disable past dates
                   required
                 />
               </div>
@@ -186,8 +224,11 @@ const LeaveSection = () => {
                 <label>End Date</label>
                 <input
                   type="date"
+                  name="end_date"
                   value={form.end_date}
-                  onChange={(e) => setForm({ ...form, end_date: e.target.value })}
+                  onChange={handleInputChange}
+                  min={form.start_date || todayDate} // Min date matches start date
+                  disabled={!form.start_date} // Disable until start date selected
                   required
                 />
               </div>
@@ -195,9 +236,10 @@ const LeaveSection = () => {
                 <label>Reason</label>
                 <input
                   type="text"
+                  name="reason"
                   placeholder="Travelling to hometown"
                   value={form.reason}
-                  onChange={(e) => setForm({ ...form, reason: e.target.value })}
+                  onChange={handleInputChange}
                   required
                 />
               </div>
