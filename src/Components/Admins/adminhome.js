@@ -173,20 +173,7 @@ const AdminDashboard = () => {
     }
   };
 
-  const handleViewPhoto = async (id) => {
-    try {
-      const res = await authFetch(`${API_BASE}/api/attendance/photo/${id}`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      if (!res.ok) throw new Error();
-      const blob = await res.blob();
-      const url = URL.createObjectURL(blob);
-      window.open(url, '_blank');
-    } catch (err) {
-      console.error('Error opening photo:', err);
-      alert('Unable to view photo');
-    }
-  };
+
 
   // ========== Simple derived helpers ==========
   const recordsCount = filtered.length;
@@ -205,7 +192,7 @@ const AdminDashboard = () => {
         <div className="top-actions">
           <div className="search">
             <span className="icon">🔎</span>
-            
+
             <input
               aria-label="Search by name or ID"
               placeholder="Search name or ID"
@@ -381,7 +368,6 @@ const AdminDashboard = () => {
                   <th>Date</th>
                   <th>Punch In</th>
                   <th>Punch Out</th>
-                  <th>Selfie</th>
                 </tr>
               </thead>
               <tbody>
@@ -395,11 +381,11 @@ const AdminDashboard = () => {
                     <td>
                       {record.date
                         ? new Date(record.date).toLocaleDateString('en-IN', {
-                            weekday: 'short',
-                            day: '2-digit',
-                            month: 'short',
-                            year: 'numeric'
-                          })
+                          weekday: 'short',
+                          day: '2-digit',
+                          month: 'short',
+                          year: 'numeric'
+                        })
                         : '-'}
                     </td>
                     <td>
@@ -411,18 +397,6 @@ const AdminDashboard = () => {
                       {record.punch_out_time
                         ? new Date(record.punch_out_time).toLocaleTimeString()
                         : '-'}
-                    </td>
-                    <td>
-                      {record.photo_path ? (
-                        <button
-                          className="clean-link"
-                          onClick={() => handleViewPhoto(record.id)}
-                        >
-                          <i className="bi bi-camera" /> View
-                        </button>
-                      ) : (
-                        <span className="muted tiny">No Image</span>
-                      )}
                     </td>
                   </tr>
                 ))}
