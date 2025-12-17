@@ -1,6 +1,8 @@
-/* RESET */
+/* ================= RESET ================= */
 * {
   box-sizing: border-box;
+  margin: 0;
+  padding: 0;
 }
 
 /* ================= SIDEBAR ================= */
@@ -15,6 +17,9 @@
   position: fixed;
   left: 0;
   top: 0;
+
+  /* 🔑 Sidebar itself NEVER scrolls */
+  overflow: hidden;
 }
 
 /* ================= BRAND ================= */
@@ -28,22 +33,22 @@
   gap: 14px;
 }
 
-/* WHITE LOGO BACKGROUND (ISAR STYLE) */
 .isar-logo-wrap {
-  width: 84px;
-  height: 84px;
+  width: 64px;
+  height: 64px;
   background: #ffffff;
-  border-radius: 18px;
+  border-radius: 14px;
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: center;
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.18);
-  flex-shrink: 0;
+  padding-top: 6px;
+  padding-bottom: 12px;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.18);
 }
 
 .isar-logo {
-  width: 60px;
-  height: 60px;
+  width: 44px;
+  height: 44px;
   object-fit: contain;
 }
 
@@ -60,6 +65,7 @@
   background: rgba(255,255,255,0.06);
   border-radius: 12px;
   margin-bottom: 18px;
+  cursor: pointer;
 }
 
 .user-avatar {
@@ -75,17 +81,34 @@
 }
 
 .user-info p {
-  margin: 4px 0 0;
+  margin-top: 4px;
   font-size: 11px;
   opacity: 0.85;
 }
 
-/* ================= NAV ================= */
+/* ================= NAV (ONLY SCROLL AREA) ================= */
 .sidebar-nav {
+  flex: 1;
   display: flex;
   flex-direction: column;
   gap: 8px;
-  flex: 1;
+
+  /* ✅ scroll works, bar hidden */
+  overflow-y: auto;
+  scrollbar-width: none; /* Firefox */
+}
+
+/* Chrome / Edge / Brave / Safari */
+.sidebar-nav::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+  display: none;
+}
+
+.sidebar-nav ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
 }
 
 .nav-link {
@@ -122,8 +145,88 @@
   color: #ffffff;
   font-weight: 700;
   cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
 }
 
 .logout-btn:hover {
   background: #d63b3b;
+}
+
+/* ================= MOBILE TOGGLE ================= */
+.sidebar-toggle {
+  display: none;
+}
+
+/* ================= MOBILE RESPONSIVENESS ================= */
+@media (max-width: 768px) {
+
+  /* Sidebar becomes slide drawer */
+  .sidebar {
+    left: -260px;
+    transition: left 0.3s ease;
+    z-index: 1000;
+  }
+
+  .sidebar.sidebar-open {
+    left: 0;
+  }
+
+  /* Overlay */
+  .sidebar-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.45);
+    z-index: 999;
+  }
+
+  /* Hamburger button */
+  .sidebar-toggle {
+    display: flex;
+    position: fixed;
+    top: 14px;
+    left: 14px;
+    width: 42px;
+    height: 42px;
+    background: #0f3b62;
+    border-radius: 10px;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 5px;
+    z-index: 1100;
+    border: none;
+    cursor: pointer;
+  }
+
+  .sidebar-toggle span {
+    width: 22px;
+    height: 2px;
+    background: #ffffff;
+  }
+
+  /* Main content full width */
+  .main-content,
+  .dashboard-content {
+    margin-left: 0 !important;
+    padding: 16px;
+  }
+
+  /* Cards stack */
+  .dashboard-cards,
+  .stats-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  /* Forms full width */
+  input,
+  select,
+  textarea,
+  button {
+    width: 100%;
+  }
 }
