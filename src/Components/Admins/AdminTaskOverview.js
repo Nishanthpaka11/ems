@@ -22,8 +22,7 @@ const AdminTaskOverview = () => {
   const [tasks, setTasks] = useState([]);
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
-  const [priorityFilter, setPriorityFilter] = useState('');
-  const [dueSort, setDueSort] = useState('');
+
 
   /* Fetch all tasks */
   const fetchTasks = useCallback(async () => {
@@ -88,15 +87,8 @@ const AdminTaskOverview = () => {
         task.employee_name?.toLowerCase().includes(search.toLowerCase()) ||
         task.employee_id?.toLowerCase().includes(search.toLowerCase())
       ) &&
-      (statusFilter === '' || task.status?.toLowerCase() === statusFilter.toLowerCase()) &&
-      (priorityFilter === '' || task.priority?.toLowerCase() === priorityFilter.toLowerCase())
-    )
-    .sort((a, b) => {
-      if (!dueSort) return 0;
-      const aDate = a.end_date ? new Date(a.end_date) : 0;
-      const bDate = b.end_date ? new Date(b.end_date) : 0;
-      return dueSort === 'asc' ? aDate - bDate : bDate - aDate;
-    });
+      (statusFilter === '' || task.status?.toLowerCase() === statusFilter.toLowerCase())
+    );
 
   /* Employees list from tasks */
   const employees = Array.from(
@@ -159,21 +151,10 @@ const AdminTaskOverview = () => {
               <option value="Pending">Pending</option>
               <option value="In Progress">In Progress</option>
               <option value="Completed">Completed</option>
-              <option value="Overdue">Overdue</option>
+
             </select>
 
-            <select value={priorityFilter} onChange={e => setPriorityFilter(e.target.value)}>
-              <option value="">Priority</option>
-              <option value="Low">Low</option>
-              <option value="Medium">Medium</option>
-              <option value="High">High</option>
-            </select>
 
-            <select value={dueSort} onChange={e => setDueSort(e.target.value)}>
-              <option value="">Due Date</option>
-              <option value="asc">Ascending</option>
-              <option value="desc">Descending</option>
-            </select>
           </div>
 
           <div className="responsive-task-table">
@@ -181,9 +162,10 @@ const AdminTaskOverview = () => {
               <thead>
                 <tr>
                   <th>Task</th>
+                  <th>Project</th>
                   <th>Assigned To</th>
-                  <th>Priority</th>
-                  <th>Due Date</th>
+                  <th>Start Date</th>
+                  <th>End Date</th>
                   <th>Status</th>
                   <th>Action</th>
                 </tr>
@@ -199,6 +181,7 @@ const AdminTaskOverview = () => {
                   filteredTasks.map(task => (
                     <tr key={task._id}>
                       <td>{task.title}</td>
+                      <td>{task.project || '-'}</td>
 
                       <td>
                         {task.avatar_url ? (
@@ -212,11 +195,10 @@ const AdminTaskOverview = () => {
                       </td>
 
                       <td>
-                        <span className={badgeClass(task.priority)}>
-                          {task.priority}
-                        </span>
+                        {task.start_date
+                          ? new Date(task.start_date).toLocaleDateString('en-IN')
+                          : '-'}
                       </td>
-
                       <td>
                         {task.end_date
                           ? new Date(task.end_date).toLocaleDateString('en-IN')
