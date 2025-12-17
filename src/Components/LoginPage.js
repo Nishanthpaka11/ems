@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./LoginPage.css";
@@ -119,7 +119,7 @@ export default function LoginPage() {
                     onChange={(e) => setEmployeeId(e.target.value)}
                     required
                     disabled={loading}
-                    
+
                   />
                 </div>
 
@@ -137,7 +137,7 @@ export default function LoginPage() {
                       onChange={(e) => setPassword(e.target.value)}
                       required
                       disabled={loading}
-                      
+
                     />
                     <button
                       type="button"
@@ -173,9 +173,9 @@ export default function LoginPage() {
                 </button>
 
                 <div className="text-center mt-3">
-                  <a className="small text-muted" href="/forgot-password">
+                  <Link className="small text-muted" to="/forgot-password">
                     Forgot password?
-                  </a>
+                  </Link>
                 </div>
 
                 <p className="text-center small text-muted mt-3 mb-0">

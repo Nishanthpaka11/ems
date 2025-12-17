@@ -212,11 +212,27 @@
    RESPONSIVE
 --------------------------------------------------- */
 @media (max-width: 576px) {
-  .day-cell {
-    min-height: 40px;
-    padding: 4px;
+  .dashboard-card {
+    padding: 1rem;
   }
+
+  .attendance-calendar {
+    padding: 0.5rem;
+  }
+
+  .calendar-header,
+  .calendar-grid {
+    gap: 2px;
+  }
+
+  .day-cell {
+    min-height: 36px;
+    padding: 2px;
+  }
+
   .calendar-header-cell {
-    font-size: 0.75rem;
+    font-size: 0.7rem;
+    padding: 4px;
+    word-break: break-all; /* Ensure days like 'Wed' don't overflow if really tight */
   }
 }
