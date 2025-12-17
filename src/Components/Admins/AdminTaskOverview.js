@@ -82,10 +82,11 @@ const AdminTaskOverview = () => {
   /* Filters + sorting */
   const filteredTasks = tasks
     .filter(task =>
-      (search === '' ||
-        task.title?.toLowerCase().includes(search.toLowerCase()) ||
-        task.employee_name?.toLowerCase().includes(search.toLowerCase()) ||
-        task.employee_id?.toLowerCase().includes(search.toLowerCase())
+      (search.trim() === '' ||
+        String(task.title || '').toLowerCase().includes(search.toLowerCase()) ||
+        String(task.project || '').toLowerCase().includes(search.toLowerCase()) ||
+        String(task.employee_name || '').toLowerCase().includes(search.toLowerCase()) ||
+        String(task.employee_id || '').toLowerCase().includes(search.toLowerCase())
       ) &&
       (statusFilter === '' || task.status?.toLowerCase() === statusFilter.toLowerCase())
     );
