@@ -173,7 +173,14 @@ const AdminDashboard = () => {
     }
   };
 
-
+  // ========== Helper to block future dates ==========
+  const getMaxDate = () => {
+    const todayDate = new Date();
+    const year = todayDate.getFullYear();
+    const month = String(todayDate.getMonth() + 1).padStart(2, '0');
+    const day = String(todayDate.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  };
 
   // ========== Simple derived helpers ==========
   const recordsCount = filtered.length;
@@ -276,6 +283,7 @@ const AdminDashboard = () => {
             type="date"
             value={selectedDate}
             onChange={(e) => setSelectedDate(e.target.value)}
+            max={getMaxDate()} // BLOCKS FUTURE DATES
           />
         </label>
 

@@ -19,7 +19,7 @@ const AdminSettingsSection = () => {
 
     setTimeout(() => {
       setPopup({ show: false, message: '', type: '' });
-    }, 2000); // auto-hide after 2s
+    }, 3000); // Increased to 3s to read error messages
   };
 
   useEffect(() => {
@@ -36,7 +36,7 @@ const AdminSettingsSection = () => {
 
         setAllowedIps(
           Array.isArray(data.allowed_ips)
-            ? data.allowed_ips.join(',')
+            ? data.allowed_ips.join(', ')
             : data.allowed_ips || ''
         );
 
@@ -50,14 +50,38 @@ const AdminSettingsSection = () => {
     fetchSettings();
   }, [API_BASE, token]);
 
+  // --- VALIDATION LOGIC ---
+  const isValidIPv4 = (ip) => {
+    // Regex for strict IPv4 validation (0-255 range checks)
+    const regex = /^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/;
+    return regex.test(ip);
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    try {
-      const formattedIps = allowedIps
-        .split(',')
-        .map((ip) => ip.trim())
-        .filter(Boolean);
 
+    // 1. Process the input into an array
+    const formattedIps = allowedIps
+      .split(',')
+      .map((ip) => ip.trim())
+      .filter(Boolean); // Removes empty strings caused by trailing commas
+
+    // 2. Check if Empty
+    if (formattedIps.length === 0) {
+      showPopup('❌ Allowed IPs cannot be empty.', 'error');
+      return;
+    }
+
+    // 3. Check for Invalid IPs
+    const invalidIps = formattedIps.filter(ip => !isValidIPv4(ip));
+    
+    if (invalidIps.length > 0) {
+      showPopup(`❌ Invalid IP format detected: ${invalidIps.join(', ')}`, 'error');
+      return; // STOP EXECUTION HERE
+    }
+
+    // 4. If Valid, Proceed to API
+    try {
       const res = await authFetch(`${API_BASE}/api/admin/settings`, {
         method: 'PUT',
         headers: {
@@ -114,7 +138,7 @@ const AdminSettingsSection = () => {
 
             <div className="settings-field">
               <label className="settings-label" htmlFor="allowedIps">
-                Allowed Wi-Fi IPs
+                Allowed Wi-Fi IPs <span style={{color: 'red'}}>*</span>
                 <span className="settings-label-pill">comma separated</span>
               </label>
               <textarea
