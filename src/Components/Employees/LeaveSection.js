@@ -35,6 +35,10 @@ const StatCard = ({ value, label, tone = 'primary', index = 0 }) => (
 const LeaveSection = () => {
   const [leaves, setLeaves] = useState([]);
   const [form, setForm] = useState({ start_date: '', end_date: '', reason: '' });
+  
+  // 1. UPDATED: Added Search State
+  const [searchQuery, setSearchQuery] = useState('');
+  
   const [filterMonth, setFilterMonth] = useState('');
   const [filterStatus, setFilterStatus] = useState('');
   const [message, setMessage] = useState('');
@@ -148,14 +152,26 @@ const LeaveSection = () => {
     }
   };
 
+  // 2. UPDATED: Filter Logic to include Search Query
   const filteredLeaves = useMemo(() => {
     return leaves.filter((leave) => {
+      // Month Filter
       const leaveMonth = new Date(leave.start_date).toISOString().slice(0, 7);
       const matchMonth = !filterMonth || leaveMonth === filterMonth;
-      const matchStatus = !filterStatus || (leave.status || '').toLowerCase() === filterStatus.toLowerCase();
-      return matchMonth && matchStatus;
+      
+      // Status Dropdown Filter
+      const matchStatusFilter = !filterStatus || (leave.status || '').toLowerCase() === filterStatus.toLowerCase();
+
+      // Search Bar Logic (Checks Reason OR Status)
+      const query = searchQuery.toLowerCase().trim();
+      const reason = (leave.reason || '').toLowerCase();
+      const status = (leave.status || '').toLowerCase();
+      
+      const matchSearch = !query || reason.includes(query) || status.includes(query);
+
+      return matchMonth && matchStatusFilter && matchSearch;
     });
-  }, [leaves, filterMonth, filterStatus]);
+  }, [leaves, filterMonth, filterStatus, searchQuery]); 
 
   const currentMonth = new Date().toISOString().slice(0, 7);
   const leavesThisMonth = useMemo(
@@ -183,7 +199,12 @@ const LeaveSection = () => {
           <div className="search-actions">
             <div className="search">
               <span className="icon"></span>
-              <input placeholder="Search reason or status" />
+              {/* 3. UPDATED: Input connected to State */}
+              <input 
+                placeholder="Search reason or status" 
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
             </div>
           </div>
         </header>
@@ -282,7 +303,7 @@ const LeaveSection = () => {
                 <button
                   type="button"
                   className="ghost-btn tap"
-                  onClick={() => { setFilterMonth(''); setFilterStatus(''); }}
+                  onClick={() => { setFilterMonth(''); setFilterStatus(''); setSearchQuery(''); }}
                 >
                   Reset
                 </button>
