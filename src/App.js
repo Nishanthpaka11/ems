@@ -5,6 +5,7 @@ import AOS from 'aos';
 import 'aos/dist/aos.css';
 
 import LoginPage from './Components/LoginPage';
+import ForgotPassword from './Components/ForgotPassword'; // Fixed import
 import AppLayout from './Components/AppLayout';
 // Employee imports
 import EmployeeDashboardLayout from './Components/Employees/EmployeeDashboard';
@@ -50,6 +51,7 @@ function App() {
     <Routes>
       {/* Public / Auth routes (no sidebar) */}
       <Route path="/" element={<LoginPage />} />
+      <Route path="/forgot-password" element={<ForgotPassword />} />
 
       {/* Protected area wrapped with AppLayout (sidebar + main content) */}
       <Route element={<AppLayout userRole={user?.role} />}>
@@ -79,10 +81,10 @@ function App() {
           }
         >
           <Route index element={<AdminHome />} />
-          
+
           <Route path="employeeprofileviewer" element={<EmployeeProfileViewer />} />
           <Route path="employee-details/:employeeId" element={<EmployeeDetailsView />} />
-           <Route path="add-employee" element={<AddEmployee />} /> 
+          <Route path="add-employee" element={<AddEmployee />} />
           <Route path="adminsettings" element={<AdminSettings />} />
           <Route path="punchioncorrection" element={<AdminCorrectionPanel />} />
           <Route path="leavemanagement" element={<LeaveManagementSection />} />

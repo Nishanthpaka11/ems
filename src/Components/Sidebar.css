@@ -1,366 +1,65 @@
-/* Sidebar.css
-   CLEAN PROFESSIONAL SIDEBAR — Enterprise UI
-   Smooth dark gradient + glass effect + modern motion
-   Includes fixes to remove page & sidebar scrollbars
-*/
-
-/* ===== Global (remove page scroll) ===== */
-html, body {
-  height: 100%;
-  margin: 0;
-  overflow: hidden; /* FULL scroll removed */
+/* RESET */
+* {
+  box-sizing: border-box;
 }
 
-/* ===== Variables ===== */
-:root {
-  --sidebar-bg1: #0e0e11;
-  --sidebar-bg2: #15151b;
-  --sidebar-hover: #1f1f27;
-  --sidebar-active: #2f2f37; /* slightly darker than hover for active */
-  --text-main: rgba(255,255,255,0.92);
-  --text-muted: rgba(255,255,255,0.65);
-  --border-glass: rgba(255,255,255,0.06);
-  --transition: 280ms cubic-bezier(.25,.8,.25,1);
-  --sidebar-width: 260px;
-  --toggle-size: 44px;
-}
-
-/* Reset box-sizing */
-* { box-sizing: border-box; }
-
-/* ===== Sidebar Container ===== */
+/* ================= SIDEBAR ================= */
 .sidebar {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: var(--sidebar-width);
-  height: 100%;
-  padding: 20px;
-  background: linear-gradient(180deg, var(--sidebar-bg1), var(--sidebar-bg2));
-  border-right: 1px solid var(--border-glass);
+  width: 240px;
+  height: 100vh;
+  background: linear-gradient(180deg, #08263f, #0f3b62);
+  padding: 20px 14px;
   display: flex;
   flex-direction: column;
-  transition: transform var(--transition);
-  z-index: 1200;
-  color: var(--text-main);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
-
-  /* ensure nothing inside causes a scrollbar on the sidebar itself */
-  overflow: hidden;
+  color: #ffffff;
+  position: fixed;
+  left: 0;
+  top: 0;
 }
 
-/* When the sidebar is opened on mobile (component toggles this class) */
-.sidebar.sidebar-open {
-  transform: translateX(0);
-}
-
-/* ===== Header ===== */
+/* ================= BRAND ================= */
 .sidebar-header {
-  margin-bottom: 30px;
+  margin-bottom: 24px;
 }
 
 .brand {
   display: flex;
   align-items: center;
-  gap: 12px;
-  font-weight: 700;
-  user-select: none;
-}
-
-.brand i {
-  font-size: 1.5rem;
-  color: white;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 40px;
-  height: 40px;
-  border-radius: 8px;
-  background: rgba(255,255,255,0.02);
-}
-
-.brand span {
-  font-size: 1.1rem;
-  color: var(--text-main);
-}
-
-.role-badge {
-  margin-top: 10px;
-  padding: 8px 12px;
-  background: rgba(255,255,255,0.03);
-  border-radius: 8px;
-  font-size: 0.78rem;
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  color: var(--text-muted);
-}
-
-/* ===== Navigation ===== */
-/* Use flex:1 so nav takes remaining space but won't force page to scroll */
-.sidebar-nav {
-  flex: 1;
-  overflow: hidden; /* prevents internal scrolling */
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-/* The ul inside nav should not add margins that cause overflow */
-.sidebar-nav ul {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-/* Link base */
-.nav-link {
-  display: flex;
   gap: 14px;
-  align-items: center;
-  padding: 12px 14px;
-  color: var(--text-muted);
-  text-decoration: none;
-  border-radius: 10px;
-  transition: background var(--transition), color var(--transition), transform var(--transition);
-  font-size: 0.95rem;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
 }
 
-.nav-link i {
-  font-size: 1.2rem;
-  opacity: 0.9;
-  width: 28px;
-  text-align: center;
-}
-
-/* Hover effect */
-.nav-link:hover {
-  background: var(--sidebar-hover);
-  color: var(--text-main);
-  transform: translateX(4px);
-}
-
-/* Active link style */
-.nav-link.active {
-  background: var(--sidebar-active);
-  color: #fff;
-  box-shadow: inset 0 0 10px rgba(255,255,255,0.03);
-}
-
-/* Add subtle left indicator for active */
-.nav-link.active::before {
-  content: "";
-  position: absolute;
-  left: 14px;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 3px;
-  height: 56%;
-  border-radius: 4px;
-  background: rgba(255,255,255,0.08);
-}
-
-/* ensure links are positioned relative for pseudo-element */
-.nav-link { position: relative; }
-
-/* ===== Footer Logout ===== */
-.sidebar-footer {
-  margin-top: auto;
-  padding-top: 12px;
-}
-
-.logout-btn {
-  width: 100%;
-  padding: 12px;
+/* WHITE LOGO BACKGROUND (ISAR STYLE) */
+.isar-logo-wrap {
+  width: 84px;
+  height: 84px;
+  background: #ffffff;
+  border-radius: 18px;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 10px;
-  background: rgba(255,255,255,0.04);
-  border-radius: 10px;
-  color: var(--text-muted);
-  font-weight: 600;
-  cursor: pointer;
-  transition: background var(--transition), color var(--transition), transform var(--transition);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.18);
+  flex-shrink: 0;
 }
 
-.logout-btn {
-  width: 100%;
-  padding: 12px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-
-  background: rgba(255, 0, 0, 0.10); /* soft red background */
-  border: 1px solid rgba(255, 0, 0, 0.25); /* red border */
-  border-radius: 10px;
-
-  color: rgba(255, 85, 85, 0.9); /* red text */
-  font-weight: 600;
-  cursor: pointer;
-  transition: background var(--transition), color var(--transition), transform var(--transition);
+.isar-logo {
+  width: 60px;
+  height: 60px;
+  object-fit: contain;
 }
 
-.logout-btn:hover {
-  background: rgba(255, 0, 0, 0.22); /* hover darker red */
-  color: #ff4444; /* brighter red on hover */
-  transform: translateY(-2px);
+.brand-text {
+  font-size: 1.4rem;
+  font-weight: 800;
 }
 
-.logout-btn i {
-  color: #ff4444;
-}
-
-/* ===== Toggle Button (Mobile) ===== */
-.sidebar-toggle {
-  position: fixed;
-  top: 16px;
-  left: 16px;
-  width: var(--toggle-size);
-  height: var(--toggle-size);
-  background: #121218;
-  border-radius: 8px;
-  display: none; /* shown only on small screens via media query */
-  align-items: center;
-  justify-content: center;
-  flex-direction: column;
-  gap: 5px;
-  z-index: 1400;
-  cursor: pointer;
-  border: 1px solid rgba(255,255,255,0.03);
-  box-shadow: 0 8px 20px rgba(2,6,12,0.5);
-}
-
-.sidebar-toggle span {
-  width: 22px;
-  height: 2px;
-  background: white;
-  border-radius: 2px;
-  transition: var(--transition);
-}
-
-.sidebar-toggle.active span:nth-child(1) {
-  transform: translateY(7px) rotate(45deg);
-}
-.sidebar-toggle.active span:nth-child(2) {
-  opacity: 0;
-}
-.sidebar-toggle.active span:nth-child(3) {
-  transform: translateY(-7px) rotate(-45deg);
-}
-
-/* ===== Accessibility ===== */
-.nav-link:focus-visible,
-.logout-btn:focus-visible,
-.sidebar-toggle:focus-visible {
-  outline: 3px solid rgba(255,255,255,0.06);
-  outline-offset: 2px;
-  border-radius: 8px;
-}
-
-/* ===== Scrollbar styling (if ever used) ===== */
-.sidebar-nav::-webkit-scrollbar { width: 8px; }
-.sidebar-nav::-webkit-scrollbar-thumb {
-  background: rgba(255,255,255,0.03);
-  border-radius: 6px;
-}
-
-/* ===== Mobile Responsiveness ===== */
-@media (max-width: 830px) {
-  .sidebar {
-    width: min(86%, 320px);
-    transform: translateX(-100%);  /* <-- hide fully off-screen */
-  }
-
-  .sidebar-toggle {
-    display: flex;
-  }
-
-  .sidebar.sidebar-open {
-    transform: translateX(0);      /* <-- slide in when open */
-    box-shadow: 0 30px 80px rgba(2,6,12,0.6);
-  }
-
-
-.sidebar-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(15, 23, 42, 0.45);
-  z-index: 1100;
-}
-
-
-  .sidebar-toggle {
-    display: flex;
-  }
-
-  /* When .sidebar-open present, bring it into view */
-  .sidebar.sidebar-open {
-    transform: translateX(0);
-    box-shadow: 0 30px 80px rgba(2,6,12,0.6);
-  }
-}
-
-/* ===== Optional collapsed state for desktop (toggle by adding .collapsed) ===== */
-.sidebar.collapsed {
-  width: 72px;
-  padding: 14px;
-}
-
-.sidebar.collapsed .brand span,
-.sidebar.collapsed .role-badge,
-.sidebar.collapsed .nav-link span,
-.sidebar.collapsed .logout-btn span {
-  display: none;
-}
-
-.sidebar.collapsed .nav-link {
-  justify-content: center;
-  padding: 10px;
-}
-
-.sidebar.collapsed .nav-link i {
-  width: 40px;
-  height: 40px;
-  text-align: center;
-  font-size: 1.2rem;
-}
-
-/* ===== Large-screen subtle lift ===== */
-@media (min-width: 1200px) {
-  .sidebar:hover {
-    transform: translateY(-3px);
-  }
-}
-
-
-/* -------------------------------
-   Sidebar: User profile block
-   ------------------------------- */
+/* ================= USER ================= */
 .sidebar-user {
-  margin: 12px 14px;
-  padding: 10px;
   display: flex;
-  align-items: center;
   gap: 12px;
-  border-radius: 10px;
-  cursor: pointer;
-  transition: background 150ms ease, transform 150ms ease;
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255,255,255,0.04);
-}
-
-.sidebar-user:hover {
-  background: rgba(255, 255, 255, 0.05);
-  transform: translateY(-2px);
+  padding: 12px;
+  background: rgba(255,255,255,0.06);
+  border-radius: 12px;
+  margin-bottom: 18px;
 }
 
 .user-avatar {
@@ -368,32 +67,63 @@ html, body {
   height: 44px;
   border-radius: 50%;
   object-fit: cover;
-  flex-shrink: 0;
-  border: 1px solid rgba(255,255,255,0.08);
-  box-shadow: 0 2px 6px rgba(0,0,0,0.25);
 }
 
-.user-info {
-  display: flex;
-  flex-direction: column;
-  line-height: 1;
-  overflow: hidden;
-}
-
-.user-name {
+.user-info h4 {
   margin: 0;
   font-size: 14px;
-  font-weight: 600;
-  color: #ffffff;
-  white-space: nowrap;
-  text-overflow: ellipsis;
-  overflow: hidden;
 }
 
-.user-role {
-  margin: 0;
+.user-info p {
+  margin: 4px 0 0;
   font-size: 11px;
-  color: #d6d6d6;
   opacity: 0.85;
-  margin-top: 4px;
+}
+
+/* ================= NAV ================= */
+.sidebar-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex: 1;
+}
+
+.nav-link {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 10px 14px;
+  border-radius: 10px;
+  color: rgba(255,255,255,0.85);
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.nav-link:hover {
+  background: rgba(255,255,255,0.08);
+}
+
+.nav-link.active {
+  background: rgba(30,144,255,0.18);
+  box-shadow: inset 4px 0 0 #1e90ff;
+}
+
+/* ================= LOGOUT ================= */
+.sidebar-footer {
+  margin-top: auto;
+}
+
+.logout-btn {
+  width: 100%;
+  padding: 12px;
+  border-radius: 10px;
+  background: #e24b4b;
+  border: none;
+  color: #ffffff;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.logout-btn:hover {
+  background: #d63b3b;
 }
