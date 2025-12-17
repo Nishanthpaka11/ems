@@ -41,8 +41,8 @@
   display: flex;
   align-items: flex-start;
   justify-content: center;
-  padding-top: 6px;
-  padding-bottom: 12px;
+  padding-top: 10px;
+  
   box-shadow: 0 6px 16px rgba(0, 0, 0, 0.18);
 }
 
