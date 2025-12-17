@@ -17,6 +17,9 @@ const EmployeeDetailsView = () => {
 
   const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || process.env.REACT_APP_API_URL;
 
+  // Style for the mandatory asterisk
+  const asteriskStyle = { color: 'red', marginLeft: '4px', fontWeight: 'bold' };
+
   useEffect(() => {
     fetchEmployeeDetails();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -72,6 +75,11 @@ const EmployeeDetailsView = () => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
+    
+    // Prevent typing more than max length for specific fields manually
+    if (name === 'phone' && value.length > 10) return;
+    if (name === 'aadhar' && value.length > 13) return;
+
     setEditedData(prev => ({
       ...prev,
       [name]: value
@@ -150,7 +158,78 @@ const EmployeeDetailsView = () => {
     }
   };
 
+  // --- HELPER: Get Today's Date ---
+  // This is used for the input max attribute so the user can select up to TODAY
+  const getTodayDate = () => {
+    const today = new Date();
+    return today.toISOString().split('T')[0]; 
+  };
+
+  // --- VALIDATION LOGIC START ---
+  const validateForm = () => {
+    const { name, phone, email, department, position, currentAddress, permanentAddress, aadhar, dob } = editedData;
+
+    // 1. Mandatory Fields Check
+    if (!name || !phone || !email || !department || !position || !currentAddress || !permanentAddress || !aadhar || !dob) {
+      return "All fields are mandatory. Please fill in all details.";
+    }
+
+    // 2. Phone Validation (Exactly 10 digits)
+    const phoneRegex = /^[0-9]{10}$/;
+    if (!phoneRegex.test(phone)) {
+      return "Phone number must be exactly 10 digits.";
+    }
+
+    // 3. Email Validation (Must be @gmail.com)
+    if (!email.toLowerCase().endsWith('@gmail.com')) {
+      return "Email must be a valid @gmail.com address.";
+    }
+
+    // 4. Age Validation (Strict 17 Years Check)
+    const today = new Date();
+    const birthDate = new Date(dob);
+    
+    // Check if the date is in the future
+    if (birthDate > today) {
+        return "Date of birth cannot be in the future.";
+    }
+
+    // Calculate Age
+    let age = today.getFullYear() - birthDate.getFullYear();
+    const monthDiff = today.getMonth() - birthDate.getMonth();
+    
+    // Adjust age if birthday hasn't happened yet this year
+    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+      age--;
+    }
+
+    // Error if younger than 17
+    if (age < 17) {
+      return "Age Validation Failed: Employee must be at least 17 years old.";
+    }
+
+    // 5. Aadhar Validation (Exactly 13 numbers)
+    const aadharRegex = /^[0-9]{13}$/; 
+    if (!aadharRegex.test(aadhar)) {
+      return "Aadhar number must be exactly 13 digits.";
+    }
+
+    return null; // No errors
+  };
+  // --- VALIDATION LOGIC END ---
+
   const handleSave = async () => {
+    setError('');
+    setMessage('');
+
+    // Run Validation
+    const validationError = validateForm();
+    if (validationError) {
+      setError(validationError);
+      window.scrollTo(0, 0); 
+      return;
+    }
+
     try {
       const token = localStorage.getItem('token');
 
@@ -180,7 +259,6 @@ const EmployeeDetailsView = () => {
       setEditedData(data.employee);
       setMessage('Employee details updated successfully');
       setIsEditing(false);
-      setError('');
     } catch (err) {
       setError(err.message);
     }
@@ -323,14 +401,16 @@ const EmployeeDetailsView = () => {
               </>
             ) : (
               <>
+                {/* Name - Header Field */}
                 <input
                   type="text"
                   name="name"
                   value={editedData.name || ''}
                   onChange={handleChange}
                   className="edit-input-name"
-                  placeholder="Full name"
+                  placeholder="Full name" 
                 />
+                
                 <div className="edit-role-row">
                   <select
                     name="role"
@@ -394,7 +474,10 @@ const EmployeeDetailsView = () => {
               <i className="bi bi-envelope-fill" />
             </div>
             <div className="detail-text">
-              <label>Email</label>
+              <label>
+                Email
+                {isEditing && <span style={asteriskStyle}>*</span>}
+              </label>
               {!isEditing ? (
                 <p>{employee.email || '—'}</p>
               ) : (
@@ -404,7 +487,7 @@ const EmployeeDetailsView = () => {
                   value={editedData.email || ''}
                   onChange={handleChange}
                   className="edit-field-input"
-                  placeholder="Email"
+                  placeholder="example@gmail.com"
                 />
               )}
             </div>
@@ -416,49 +499,62 @@ const EmployeeDetailsView = () => {
               <i className="bi bi-telephone-fill" />
             </div>
             <div className="detail-text">
-              <label>Phone</label>
+              <label>
+                Phone
+                {isEditing && <span style={asteriskStyle}>*</span>}
+              </label>
               {!isEditing ? (
-                <p>{employee.phone || '—'}</p>
+                <p>+91 {employee.phone || '—'}</p>
               ) : (
-                <input
-                  type="tel"
-                  name="phone"
-                  value={editedData.phone || ''}
-                  onChange={handleChange}
-                  className="edit-field-input"
-                  placeholder="Phone"
-                />
+                <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+                  <span style={{ fontWeight: 'bold', color: '#555' }}>+91</span>
+                  <input
+                    type="number"
+                    name="phone"
+                    value={editedData.phone || ''}
+                    onChange={handleChange}
+                    className="edit-field-input"
+                    placeholder="10 digit number"
+                    maxLength="10"
+                    onInput={(e) => {
+                      if (e.target.value.length > 10) e.target.value = e.target.value.slice(0, 10);
+                    }}
+                  />
+                </div>
               )}
             </div>
           </div>
 
-                    {/* Date of Birth */}
+          {/* Date of Birth */}
           <div className="detail-card">
             <div className="detail-icon detail-icon-date">
               <i className="bi bi-calendar-event" />
             </div>
             <div className="detail-text">
-             <label>Date of Birth</label>
-{!isEditing ? (
-  <p>
-    {employee.dob
-      ? employee.dob.slice(0, 10)
-      : '—'}
-  </p>
-) : (
-  <input
-    type="date"
-    name="dob"
-    value={editedData.dob ? editedData.dob.slice(0, 10) : ''}
-    onChange={handleChange}
-    className="edit-field-input"
-  />
-)}
+              <label>
+                Date of Birth
+                {isEditing && <span style={asteriskStyle}>*</span>}
+              </label>
+              {!isEditing ? (
+                <p>
+                  {employee.dob
+                    ? employee.dob.slice(0, 10)
+                    : '—'}
+                </p>
+              ) : (
+                <input
+                  type="date"
+                  name="dob"
+                  value={editedData.dob ? editedData.dob.slice(0, 10) : ''}
+                  onChange={handleChange}
+                  className="edit-field-input"
+                  required
+                  // Only block truly future dates (like 2026), but allow upto TODAY
+                  max={getTodayDate()} 
+                />
+              )}
             </div>
           </div>
-
-
-          
 
           {/* Position */}
           <div className="detail-card">
@@ -466,7 +562,10 @@ const EmployeeDetailsView = () => {
               <i className="bi bi-briefcase-fill" />
             </div>
             <div className="detail-text">
-              <label>Position</label>
+              <label>
+                Position
+                {isEditing && <span style={asteriskStyle}>*</span>}
+              </label>
               {!isEditing ? (
                 <p>{employee.position || '—'}</p>
               ) : (
@@ -488,7 +587,10 @@ const EmployeeDetailsView = () => {
               <i className="bi bi-geo-alt-fill" />
             </div>
             <div className="detail-text">
-              <label>Current address</label>
+              <label>
+                Current address
+                {isEditing && <span style={asteriskStyle}>*</span>}
+              </label>
               {!isEditing ? (
                 <p>{employee.currentAddress || '—'}</p>
               ) : (
@@ -510,7 +612,10 @@ const EmployeeDetailsView = () => {
               <i className="bi bi-house-fill" />
             </div>
             <div className="detail-text">
-              <label>Permanent address</label>
+              <label>
+                Permanent address
+                {isEditing && <span style={asteriskStyle}>*</span>}
+              </label>
               {!isEditing ? (
                 <p>{employee.permanentAddress || '—'}</p>
               ) : (
@@ -532,18 +637,24 @@ const EmployeeDetailsView = () => {
               <i className="bi bi-credit-card-2-front-fill" />
             </div>
             <div className="detail-text">
-              <label>Aadhar number</label>
+              <label>
+                Aadhar number
+                {isEditing && <span style={asteriskStyle}>*</span>}
+              </label>
               {!isEditing ? (
                 <p>{employee.aadhar || '—'}</p>
               ) : (
                 <input
-                  type="text"
+                  type="number"
                   name="aadhar"
                   value={editedData.aadhar || ''}
                   onChange={handleChange}
                   className="edit-field-input"
                   placeholder="Aadhar number"
-                  maxLength="12"
+                  maxLength="13"
+                  onInput={(e) => {
+                    if (e.target.value.length > 13) e.target.value = e.target.value.slice(0, 13);
+                  }}
                 />
               )}
             </div>
