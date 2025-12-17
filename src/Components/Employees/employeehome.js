@@ -158,37 +158,11 @@ useEffect(() => {
     return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
   };
 
-  // TIME WINDOW HELPERS (kept same as you had)
-  const isPunchInTimeAllowed = () => {
-    const now = new Date();
-    const hour = now.getHours();
-    const minute = now.getMinutes();
-    // allowed until 10:45 AM (inclusive)
-
-    return hour < 12 || (hour === 12 && minute <= 45);
-    
-  };
-
-  const isPunchOutTimeAllowed = () => {
-    const now = new Date();
-    const hour = now.getHours();
-    const minute = now.getMinutes();
-    // allowed from 1:00 PM onwards
-    return hour > 13 || (hour === 13 && minute >= 0);
-  };
-
-  // derived booleans for button disabled state (uses live clock)
-  const nowHour = clock.getHours();
-  const nowMinute = clock.getMinutes();
-  const canPunchInNow = nowHour < 12 || (nowHour === 12 && nowMinute <= 45);
-  const canPunchOutNow = nowHour > 13 || (nowHour === 13 && nowMinute >= 0);
+  // No time window logic for punch in/out
+  const canPunchInNow = true;
+  const canPunchOutNow = true;
 
   const handlePunchIn = async () => {
-    if (!isPunchInTimeAllowed()) {
-      alert('❌ Punch In is only allowed before 9:45 AM.');
-      return;
-    }
-
     if (!wifiAllowed) {
       alert("❌ You're not on allowed WiFi.");
       return;
@@ -215,22 +189,8 @@ useEffect(() => {
   };
 
   const handlePunchOut = async () => {
-    if (!isPunchOutTimeAllowed()) {
-      alert('❌ Punch Out is only allowed after 1:00 PM.');
-      return;
-    }
-
     if (!wifiAllowed) {
       alert("❌ You're not on allowed WiFi.");
-      return;
-    }
-
-    const punchInTime = new Date(status.punch_in);
-    const now = new Date();
-    const timeDiff = (now - punchInTime) / (1000 * 60 * 60);
-
-    if (timeDiff < 1) {
-      alert('Punch Out Available after 1PM.');
       return;
     }
 
