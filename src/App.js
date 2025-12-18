@@ -1,11 +1,11 @@
 // src/App.js
 import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
-import { useState, useEffect } from 'react';
+import { useEffect } from 'react';
 import AOS from 'aos';
 import 'aos/dist/aos.css';
 
 import LoginPage from './Components/LoginPage';
-import ForgotPassword from './Components/ForgotPassword'; // Fixed import
+import ForgotPassword from './Components/ForgotPassword';
 import AppLayout from './Components/AppLayout';
 // Employee imports
 import EmployeeDashboardLayout from './Components/Employees/EmployeeDashboard';
@@ -30,21 +30,25 @@ import AdminAttendanceSummary from './Components/Admins/AdminAttendanceSummary';
 
 function App() {
   const location = useLocation();
-  const [token, setToken] = useState(localStorage.getItem('token'));
-  const [user, setUser] = useState(() => {
-    const u = localStorage.getItem('user');
-    return u ? JSON.parse(u) : null;
-  });
+  // Direct read from localStorage to avoid stale state issues during navigation
+  const token = localStorage.getItem('token');
+  const user = (() => {
+    try {
+      const u = localStorage.getItem('user');
+      return u ? JSON.parse(u) : null;
+    } catch (e) {
+      return null;
+    }
+  })();
 
   useEffect(() => {
     document.title = "ISAR EMS";
     AOS.init({ duration: 1000 });
   }, []);
 
+  // Ensure scroll to top on route change
   useEffect(() => {
-    setToken(localStorage.getItem('token'));
-    const u = localStorage.getItem('user');
-    setUser(u ? JSON.parse(u) : null);
+    window.scrollTo(0, 0);
   }, [location]);
 
   return (
