@@ -26,7 +26,7 @@ export default function ForgotPassword() {
         setLoading(true);
 
         try {
-            const res = await fetch(`${API_BASE}/api/auth/request-otp`, {
+            const res = await fetch(`${API_BASE}/auth/request-otp`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ email }),
