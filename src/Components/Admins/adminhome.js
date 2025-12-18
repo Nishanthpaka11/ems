@@ -18,10 +18,7 @@ const AdminDashboard = () => {
   const [records, setRecords] = useState([]);
   const [filtered, setFiltered] = useState([]);
   const [search, setSearch] = useState('');
-  const [selectedDate, setSelectedDate] = useState('');
-  const [error, setError] = useState('');
   const [employees, setEmployees] = useState([]);
-  const [showEmployees, setShowEmployees] = useState(false);
 
   const token = localStorage.getItem('token');
   const user = JSON.parse(localStorage.getItem('user'));
@@ -39,10 +36,10 @@ const AdminDashboard = () => {
       const data = await res.json();
       setRecords(data);
       setFiltered(data);
-      setError('');
+      // setError removed
     } catch (err) {
       console.error(err);
-      setError('Failed to fetch attendance records.');
+      // setError removed
     }
   }, [token, API_BASE]);
 
@@ -56,7 +53,7 @@ const AdminDashboard = () => {
       setEmployees(data);
     } catch (err) {
       console.error(err);
-      setError('Failed to fetch employees.');
+      // setError removed
     }
   }, [token, API_BASE]);
 
@@ -77,11 +74,8 @@ const AdminDashboard = () => {
         record.employee_id?.toLowerCase().includes(q)
       );
     }
-    if (selectedDate) {
-      result = result.filter((record) => record.date === selectedDate);
-    }
     setFiltered(result);
-  }, [search, selectedDate, records]);
+  }, [search, records]);
 
   // ========== Metrics (UNCHANGED) ==========
   const today = new Date().toISOString().split('T')[0];
@@ -136,51 +130,7 @@ const AdminDashboard = () => {
     a.click();
   };
 
-  const handleDeleteEmployee = async (id) => {
-    try {
-      const res = await authFetch(`${API_BASE}/api/employees/${id}`, {
-        method: 'DELETE',
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      if (!res.ok) throw new Error('Delete failed');
-      fetchEmployees();
-    } catch (err) {
-      console.error(err);
-      setError('Failed to delete employee.');
-    }
-  };
 
-  const toggleEmployees = () => {
-    if (!showEmployees) fetchEmployees();
-    setShowEmployees(!showEmployees);
-  };
-
-  const updateLeaveQuota = async (id, quota) => {
-    try {
-      const res = await authFetch(`${API_BASE}/api/employees/${id}/leave-quota`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`
-        },
-        body: JSON.stringify({ leave_quota: quota })
-      });
-      if (!res.ok) throw new Error();
-      alert('Leave quota updated');
-    } catch (err) {
-      console.error('Failed to update leave quota:', err);
-      alert('Failed to update leave quota');
-    }
-  };
-
-  // ========== Helper to block future dates ==========
-  const getMaxDate = () => {
-    const todayDate = new Date();
-    const year = todayDate.getFullYear();
-    const month = String(todayDate.getMonth() + 1).padStart(2, '0');
-    const day = String(todayDate.getDate()).padStart(2, '0');
-    return `${year}-${month}-${day}`;
-  };
 
   // ========== Simple derived helpers ==========
   const recordsCount = filtered.length;
