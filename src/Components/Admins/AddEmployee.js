@@ -1,15 +1,17 @@
 // src/Components/Admins/AddEmployee.js
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import Swal from 'sweetalert2'; 
 import './AddEmployee.css';
 
 const AddEmployee = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
-  const [message, setMessage] = useState('');
   const [photoPreview, setPhotoPreview] = useState(null);
   const [photoFile, setPhotoFile] = useState(null);
+
+  // Validation Error State
+  const [errors, setErrors] = useState({});
 
   const [formData, setFormData] = useState({
     employee_id: '',
@@ -17,7 +19,7 @@ const AddEmployee = () => {
     email: '',
     password: '',
     phone: '',
-    dob: '',              // ✅ NEW: Date of Birth
+    dob: '',
     role: 'employee',
     department: '',
     position: '',
@@ -29,37 +31,42 @@ const AddEmployee = () => {
 
   const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || process.env.REACT_APP_API_URL;
 
+  // Helper: Get today's date for max attribute
+  const getTodayDate = () => {
+    return new Date().toISOString().split("T")[0];
+  };
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({
       ...prev,
       [name]: value
     }));
+    
+    // Clear error for this specific field when user types
+    if (errors[name]) {
+      setErrors(prev => ({ ...prev, [name]: '' }));
+    }
   };
 
   const handlePhotoChange = (e) => {
     const file = e.target.files[0];
     if (file) {
-      // Validate file size (5MB)
       if (file.size > 5 * 1024 * 1024) {
-        setError('File size must be less than 5MB');
+        Swal.fire('Error', 'File size must be less than 5MB', 'error');
         return;
       }
-      // Validate file type
       if (!file.type.startsWith('image/')) {
-        setError('Only image files are allowed');
+        Swal.fire('Error', 'Only image files are allowed', 'error');
         return;
       }
 
       setPhotoFile(file);
-
-      // Create preview
       const reader = new FileReader();
       reader.onloadend = () => {
         setPhotoPreview(reader.result);
       };
       reader.readAsDataURL(file);
-      setError('');
     }
   };
 
@@ -68,30 +75,122 @@ const AddEmployee = () => {
     setPhotoPreview(null);
   };
 
+  // --- VALIDATION LOGIC ---
+  const validateForm = () => {
+    let newErrors = {};
+    
+    // 1. Validate Employee ID (Must start with ISARED or ISARAD followed by numbers)
+    const empIdRegex = /^(ISARED|ISARAD)[0-9]+$/;
+    if (!formData.employee_id.trim()) {
+      newErrors.employee_id = "Employee ID is required";
+    } else if (!formData.employee_id.startsWith('ISARED') && !formData.employee_id.startsWith('ISARAD')) {
+      newErrors.employee_id = "ID must start with 'ISARED' or 'ISARAD'";
+    } else if (!empIdRegex.test(formData.employee_id)) {
+      newErrors.employee_id = "ID must follow prefix with numbers only (e.g., ISARED101)";
+    }
+
+    // Name
+    if (!formData.name.trim()) {
+      newErrors.name = "Full Name is required";
+    } else if (formData.name.length < 3) {
+      newErrors.name = "Name must be at least 3 characters";
+    }
+
+    // Email
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!formData.email.trim()) {
+      newErrors.email = "Email is required";
+    } else if (!emailRegex.test(formData.email)) {
+      newErrors.email = "Invalid email format";
+    }
+
+    // 2. Password (Minimum 10 characters)
+    if (!formData.password) {
+      newErrors.password = "Password is required";
+    } else if (formData.password.length < 10) {
+      newErrors.password = "Password must be at least 10 characters";
+    }
+
+    // Phone (10 Digits)
+    const phoneRegex = /^[0-9]{10}$/;
+    if (!formData.phone) {
+      newErrors.phone = "Phone number is required";
+    } else if (!phoneRegex.test(formData.phone)) {
+      newErrors.phone = "Phone must be exactly 10 digits";
+    }
+
+    // Date of Birth (Age > 17 check)
+    if (!formData.dob) {
+      newErrors.dob = "Date of Birth is required";
+    } else {
+      const birthDate = new Date(formData.dob);
+      const today = new Date();
+      let age = today.getFullYear() - birthDate.getFullYear();
+      const m = today.getMonth() - birthDate.getMonth();
+      
+      if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
+        age--;
+      }
+
+      if (age <= 17) {
+        newErrors.dob = `Age is ${age}. Employee must be 18+`;
+      }
+      if (birthDate > today) {
+        newErrors.dob = "Date of birth cannot be in the future";
+      }
+    }
+
+    // Aadhar (12 Digits)
+    const aadharRegex = /^[0-9]{12}$/;
+    if (!formData.aadhar) {
+      newErrors.aadhar = "Aadhar number is required";
+    } else if (!aadharRegex.test(formData.aadhar)) {
+      newErrors.aadhar = "Aadhar must be exactly 12 digits";
+    }
+
+    // Other Required Fields
+    if (!formData.department.trim()) newErrors.department = "Department is required";
+    if (!formData.position.trim()) newErrors.position = "Position is required";
+    if (!formData.currentAddress.trim()) newErrors.currentAddress = "Current Address is required";
+    if (!formData.permanentAddress.trim()) newErrors.permanentAddress = "Permanent Address is required";
+
+    return newErrors;
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true);
-    setError('');
-    setMessage('');
+    
+    // 1. Run Validation
+    const formErrors = validateForm();
+    
+    // 2. Update State to show Red Borders
+    setErrors(formErrors);
 
-    // Validation
-    if (!formData.employee_id || !formData.name || !formData.email || !formData.password) {
-      setError('Please fill in all required fields');
-      setLoading(false);
-      return;
+    // 3. Check if there are errors
+    if (Object.keys(formErrors).length > 0) {
+      // Create Popup Message
+      const errorList = Object.values(formErrors).map(err => `<li>${err}</li>`).join('');
+      
+      Swal.fire({
+        icon: 'error',
+        title: 'Validation Failed',
+        html: `<ul style="text-align: left; list-style-position: inside;">${errorList}</ul>`,
+        confirmButtonColor: '#d33'
+      });
+      return; 
     }
+
+    setLoading(true);
 
     try {
       const token = localStorage.getItem('token');
-
-      // Create the employee (calls /api/addemployee)
       const response = await fetch(`${API_BASE_URL}/api/addemployee`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify(formData) // ✅ dob is now included automatically
+        body: JSON.stringify(formData)
       });
 
       if (!response.ok) {
@@ -102,34 +201,39 @@ const AddEmployee = () => {
       const data = await response.json();
       const newEmployeeId = data.employee._id;
 
-      // If photo is selected, upload it
+      // Photo Upload
       if (photoFile) {
         const photoFormData = new FormData();
         photoFormData.append('photo', photoFile);
 
-        const photoResponse = await fetch(
+        await fetch(
           `${API_BASE_URL}/api/profile/employee/${newEmployeeId}/upload-photo`,
           {
             method: 'POST',
-            headers: {
-              'Authorization': `Bearer ${token}`
-            },
+            headers: { 'Authorization': `Bearer ${token}` },
             body: photoFormData
           }
         );
-
-        if (!photoResponse.ok) {
-          console.error('Photo upload failed, but employee was created');
-        }
       }
 
-      setMessage('Employee added successfully!');
+      Swal.fire({
+        icon: 'success',
+        title: 'Success!',
+        text: 'Employee added successfully!',
+        timer: 2000,
+        showConfirmButton: false
+      });
+
       setTimeout(() => {
         navigate('/admin-dashboard/employeeprofileviewer');
       }, 2000);
 
     } catch (err) {
-      setError(err.message);
+      Swal.fire({
+        icon: 'error',
+        title: 'Server Error',
+        text: err.message
+      });
     } finally {
       setLoading(false);
     }
@@ -142,8 +246,8 @@ const AddEmployee = () => {
       email: '',
       password: '',
       phone: '',
-      dob: '',          // ✅ reset dob too
-      role: '',
+      dob: '',
+      role: 'employee',
       department: '',
       position: '',
       currentAddress: '',
@@ -153,8 +257,7 @@ const AddEmployee = () => {
     });
     setPhotoFile(null);
     setPhotoPreview(null);
-    setError('');
-    setMessage('');
+    setErrors({});
   };
 
   return (
@@ -166,24 +269,10 @@ const AddEmployee = () => {
         <p className="page-subtitle">Fill in the details to add a new employee to the system</p>
       </div>
 
-      {error && (
-        <div className="alert alert-error">
-          <i className="bi bi-exclamation-circle"></i> {error}
-        </div>
-      )}
-
-      {message && (
-        <div className="alert alert-success">
-          <i className="bi bi-check-circle"></i> {message}
-        </div>
-      )}
-
-      <form onSubmit={handleSubmit} className="add-employee-form">
+      <form onSubmit={handleSubmit} className="add-employee-form" noValidate>
         {/* Profile Photo Section */}
         <div className="form-section photo-section">
-          <h2 className="section-title">
-            <i className="bi bi-camera-fill"></i> Profile Photo
-          </h2>
+          <h2 className="section-title"><i className="bi bi-camera-fill"></i> Profile Photo</h2>
           <div className="photo-upload-area">
             <div className="photo-preview-box">
               {photoPreview ? (
@@ -199,238 +288,156 @@ const AddEmployee = () => {
               <label htmlFor="photo-upload" className="btn-upload-photo">
                 <i className="bi bi-cloud-upload-fill"></i> Choose Photo
               </label>
-              <input
-                type="file"
-                id="photo-upload"
-                accept="image/*"
-                onChange={handlePhotoChange}
-                style={{ display: 'none' }}
-              />
+              <input type="file" id="photo-upload" accept="image/*" onChange={handlePhotoChange} style={{ display: 'none' }} />
               {photoPreview && (
                 <button type="button" className="btn-remove-photo" onClick={handleRemovePhoto}>
                   <i className="bi bi-trash-fill"></i> Remove
                 </button>
               )}
             </div>
-            <small className="photo-hint">Max size: 5MB (JPG, PNG, GIF, WEBP)</small>
           </div>
         </div>
 
         {/* Basic Information */}
         <div className="form-section">
-          <h2 className="section-title">
-            <i className="bi bi-person-badge-fill"></i> Basic Information
-          </h2>
+          <h2 className="section-title"><i className="bi bi-person-badge-fill"></i> Basic Information</h2>
           <div className="form-grid">
+            
             <div className="form-group">
-              <label htmlFor="employee_id" className="form-label required">Employee ID</label>
+              <label htmlFor="employee_id" className="form-label">Employee ID <span className="text-danger">*</span></label>
               <input
-                type="text"
-                id="employee_id"
-                name="employee_id"
-                value={formData.employee_id}
-                onChange={handleChange}
-                className="form-input"
-                placeholder="e.g., EMP001"
-                required
+                type="text" name="employee_id" value={formData.employee_id} onChange={handleChange}
+                className={`form-input ${errors.employee_id ? 'input-error' : ''}`} 
+                placeholder="e.g., ISARED001 or ISARAD001"
               />
+              {errors.employee_id && <small className="error-msg">{errors.employee_id}</small>}
             </div>
 
             <div className="form-group">
-              <label htmlFor="name" className="form-label required">Full Name</label>
+              <label htmlFor="name" className="form-label">Full Name <span className="text-danger">*</span></label>
               <input
-                type="text"
-                id="name"
-                name="name"
-                value={formData.name}
-                onChange={handleChange}
-                className="form-input"
-                placeholder="Enter full name"
-                required
+                type="text" name="name" value={formData.name} onChange={handleChange}
+                className={`form-input ${errors.name ? 'input-error' : ''}`} placeholder="Enter full name"
               />
+              {errors.name && <small className="error-msg">{errors.name}</small>}
             </div>
 
             <div className="form-group">
-              <label htmlFor="email" className="form-label required">Email</label>
+              <label htmlFor="email" className="form-label">Email <span className="text-danger">*</span></label>
               <input
-                type="email"
-                id="email"
-                name="email"
-                value={formData.email}
-                onChange={handleChange}
-                className="form-input"
-                placeholder="employee@example.com"
-                required
+                type="email" name="email" value={formData.email} onChange={handleChange}
+                className={`form-input ${errors.email ? 'input-error' : ''}`} placeholder="employee@example.com"
               />
+              {errors.email && <small className="error-msg">{errors.email}</small>}
             </div>
 
             <div className="form-group">
-              <label htmlFor="password" className="form-label required">Password</label>
+              <label htmlFor="password" className="form-label">Password <span className="text-danger">*</span></label>
               <input
-                type="password"
-                id="password"
-                name="password"
-                value={formData.password}
-                onChange={handleChange}
-                className="form-input"
-                placeholder="Enter password"
-                required
+                type="password" name="password" value={formData.password} onChange={handleChange}
+                className={`form-input ${errors.password ? 'input-error' : ''}`} 
+                placeholder="Min 10 characters"
               />
+              {errors.password && <small className="error-msg">{errors.password}</small>}
             </div>
 
             <div className="form-group">
-              <label htmlFor="phone" className="form-label">Phone Number</label>
+              <label htmlFor="phone" className="form-label">Phone Number <span className="text-danger">*</span></label>
               <input
-                type="tel"
-                id="phone"
-                name="phone"
-                value={formData.phone}
-                onChange={handleChange}
-                className="form-input"
-                placeholder="Enter phone number"
+                type="tel" name="phone" value={formData.phone} onChange={handleChange}
+                className={`form-input ${errors.phone ? 'input-error' : ''}`} placeholder="10 digit number" maxLength="10"
               />
-            </div>
-
-            {/* ✅ New Date of Birth field */}
-            <div className="form-group">
-              <label htmlFor="dob" className="form-label">Date of Birth</label>
-              <input
-                type="date"
-                id="dob"
-                name="dob"
-                value={formData.dob}
-                onChange={handleChange}
-                className="form-input"
-                
-              />
+              {errors.phone && <small className="error-msg">{errors.phone}</small>}
             </div>
 
             <div className="form-group">
-              <label htmlFor="aadhar" className="form-label">Aadhar Number</label>
+              <label htmlFor="dob" className="form-label">Date of Birth <span className="text-danger">*</span></label>
               <input
-                type="text"
-                id="aadhar"
-                name="aadhar"
-                value={formData.aadhar}
-                onChange={handleChange}
-                className="form-input"
-                placeholder="12-digit Aadhar number"
-                maxLength="12"
+                type="date" name="dob" value={formData.dob} onChange={handleChange}
+                max={getTodayDate()} 
+                className={`form-input ${errors.dob ? 'input-error' : ''}`}
               />
+              {errors.dob && <small className="error-msg">{errors.dob}</small>}
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="aadhar" className="form-label">Aadhar Number <span className="text-danger">*</span></label>
+              <input
+                type="text" name="aadhar" value={formData.aadhar} onChange={handleChange}
+                className={`form-input ${errors.aadhar ? 'input-error' : ''}`} placeholder="12-digit Aadhar number" maxLength="12"
+              />
+              {errors.aadhar && <small className="error-msg">{errors.aadhar}</small>}
             </div>
           </div>
         </div>
 
         {/* Job Details */}
         <div className="form-section">
-          <h2 className="section-title">
-            <i className="bi bi-briefcase-fill"></i> Job Details
-          </h2>
+          <h2 className="section-title"><i className="bi bi-briefcase-fill"></i> Job Details</h2>
           <div className="form-grid">
             <div className="form-group">
-              <label htmlFor="role" className="form-label">Role</label>
-              <select
-                id="role"
-                name="role"
-                value={formData.role}
-                onChange={handleChange}
-                className="form-select"
-              >
+              <label className="form-label">Role <span className="text-danger">*</span></label>
+              <select name="role" value={formData.role} onChange={handleChange} className="form-select">
                 <option value="employee">Employee</option>
                 <option value="admin">Admin</option>
               </select>
             </div>
 
             <div className="form-group">
-              <label htmlFor="department" className="form-label">Department</label>
+              <label className="form-label">Department <span className="text-danger">*</span></label>
               <input
-                type="text"
-                id="department"
-                name="department"
-                value={formData.department}
-                onChange={handleChange}
-                className="form-input"
-                placeholder="e.g., IT, HR, Finance"
+                type="text" name="department" value={formData.department} onChange={handleChange}
+                className={`form-input ${errors.department ? 'input-error' : ''}`}
               />
+              {errors.department && <small className="error-msg">{errors.department}</small>}
             </div>
 
             <div className="form-group">
-              <label htmlFor="position" className="form-label">Position</label>
+              <label className="form-label">Position <span className="text-danger">*</span></label>
               <input
-                type="text"
-                id="position"
-                name="position"
-                value={formData.position}
-                onChange={handleChange}
-                className="form-input"
-                placeholder="e.g., Software Engineer"
+                type="text" name="position" value={formData.position} onChange={handleChange}
+                className={`form-input ${errors.position ? 'input-error' : ''}`}
               />
+              {errors.position && <small className="error-msg">{errors.position}</small>}
             </div>
 
             <div className="form-group">
-              <label htmlFor="leave_quota" className="form-label">Annual Leave Quota</label>
-              <input
-                type="number"
-                id="leave_quota"
-                name="leave_quota"
-                value={formData.leave_quota}
-                onChange={handleChange}
-                className="form-input"
-                min="0"
-              />
+              <label className="form-label">Annual Leave Quota</label>
+              <input type="number" name="leave_quota" value={formData.leave_quota} onChange={handleChange} className="form-input" min="0" />
             </div>
           </div>
         </div>
 
         {/* Address Information */}
         <div className="form-section">
-          <h2 className="section-title">
-            <i className="bi bi-geo-alt-fill"></i> Address Information
-          </h2>
+          <h2 className="section-title"><i className="bi bi-geo-alt-fill"></i> Address Information</h2>
           <div className="form-grid">
             <div className="form-group form-group-full">
-              <label htmlFor="currentAddress" className="form-label">Current Address</label>
+              <label className="form-label">Current Address <span className="text-danger">*</span></label>
               <textarea
-                id="currentAddress"
-                name="currentAddress"
-                value={formData.currentAddress}
-                onChange={handleChange}
-                className="form-textarea"
-                placeholder="Enter current address"
-                rows="3"
+                name="currentAddress" value={formData.currentAddress} onChange={handleChange}
+                className={`form-textarea ${errors.currentAddress ? 'input-error' : ''}`} rows="3"
               />
+              {errors.currentAddress && <small className="error-msg">{errors.currentAddress}</small>}
             </div>
 
             <div className="form-group form-group-full">
-              <label htmlFor="permanentAddress" className="form-label">Permanent Address</label>
+              <label className="form-label">Permanent Address <span className="text-danger">*</span></label>
               <textarea
-                id="permanentAddress"
-                name="permanentAddress"
-                value={formData.permanentAddress}
-                onChange={handleChange}
-                className="form-textarea"
-                placeholder="Enter permanent address"
-                rows="3"
+                name="permanentAddress" value={formData.permanentAddress} onChange={handleChange}
+                className={`form-textarea ${errors.permanentAddress ? 'input-error' : ''}`} rows="3"
               />
+              {errors.permanentAddress && <small className="error-msg">{errors.permanentAddress}</small>}
             </div>
           </div>
         </div>
 
-        {/* Form Actions */}
         <div className="form-actions">
           <button type="button" className="btn-secondary" onClick={handleReset}>
             <i className="bi bi-arrow-counterclockwise"></i> Reset
           </button>
           <button type="submit" className="btn-primary" disabled={loading}>
-            {loading ? (
-              <>
-                <span className="spinner-small"></span> Adding...
-              </>
-            ) : (
-              <>
-                <i className="bi bi-check-circle-fill"></i> Add Employee
-              </>
-            )}
+            {loading ? <span className="spinner-small"></span> : <><i className="bi bi-check-circle-fill"></i> Add Employee</>}
           </button>
         </div>
       </form>

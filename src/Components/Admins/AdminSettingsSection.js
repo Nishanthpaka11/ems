@@ -196,6 +196,8 @@ const AdminSettingsSection = () => {
           <div className="settings-actions">
             <button
               type="button"
+
+              
               className="settings-btn settings-btn-ghost"
               onClick={() => window.location.reload()}
             >
