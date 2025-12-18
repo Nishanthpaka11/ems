@@ -75,6 +75,10 @@ const EmployeeDetailsView = () => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
+     if (name === 'name') {
+    const nameRegex = /^[A-Za-z\s]*$/;
+    if (!nameRegex.test(value)) return;
+  }
     
     // Prevent typing more than max length for specific fields manually
     if (name === 'phone' && value.length > 10) return;
@@ -173,6 +177,12 @@ const EmployeeDetailsView = () => {
     if (!name || !phone || !email || !department || !position || !currentAddress || !permanentAddress || !aadhar || !dob) {
       return "All fields are mandatory. Please fill in all details.";
     }
+    // Name Validation (Only alphabets and spaces)
+const nameRegex = /^[A-Za-z\s]+$/;
+if (!nameRegex.test(name)) {
+  return "Name must contain only alphabets and spaces. Numbers or special characters are not allowed.";
+}
+
 
     // 2. Phone Validation (Exactly 10 digits)
     const phoneRegex = /^[0-9]{10}$/;
@@ -248,7 +258,8 @@ const EmployeeDetailsView = () => {
           currentAddress: editedData.currentAddress,
           permanentAddress: editedData.permanentAddress,
           aadhar: editedData.aadhar,
-          dob: editedData.dob          
+          dob: editedData.dob ,
+          role: editedData.role           
         })
       });
 
@@ -403,13 +414,15 @@ const EmployeeDetailsView = () => {
               <>
                 {/* Name - Header Field */}
                 <input
-                  type="text"
-                  name="name"
-                  value={editedData.name || ''}
-                  onChange={handleChange}
-                  className="edit-input-name"
-                  placeholder="Full name" 
-                />
+  type="text"
+  name="name"
+  value={editedData.name || ''}
+  onChange={handleChange}
+  className="edit-input-name"
+  placeholder="Full name (alphabets only)"
+  inputMode="text"
+/>
+
                 
                 <div className="edit-role-row">
                   <select

@@ -196,22 +196,7 @@ const AdminDashboard = () => {
           <div className="brand-sub">Welcome, {adminName}</div>
         </div>
 
-        <div className="top-actions">
-          <div className="search">
-            <span className="icon">🔎</span>
-
-            <input
-              aria-label="Search by name or ID"
-              placeholder="Search name or ID"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-            />
-          </div>
-
-          <button className="clean-btn" onClick={handleExportCSV}>
-            <i className="bi bi-download" /> Export
-          </button>
-        </div>
+        
       </header>
 
       {/* STATS */}
@@ -275,88 +260,24 @@ const AdminDashboard = () => {
         </div>
       </section>
 
-      {/* FILTERS */}
-      <section className="clean-filters">
-        <label className="frow">
-          <span>Date</span>
-          <input
-            type="date"
-            value={selectedDate}
-            onChange={(e) => setSelectedDate(e.target.value)}
-            max={getMaxDate()} // BLOCKS FUTURE DATES
-          />
-        </label>
+     <div className="top-actions">
+          <div className="search">
+            <span className="icon">🔎</span>
 
-        <div className="frow">
-          <button className="link" onClick={toggleEmployees}>
-            {showEmployees ? 'Hide Employees' : 'Show Employees'}
+            <input
+              aria-label="Search by name or ID"
+              placeholder="Search name or ID"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
+          </div>
+
+          <button className="clean-btn" onClick={handleExportCSV}>
+            <i className="bi bi-download" /> Export
           </button>
-          <button className="link" onClick={() => fetchRecords()}>Refresh</button>
-        </div>
-      </section>
-
-      {/* ERROR */}
-      {error && <div className="clean-error">{error}</div>}
-
-      {/* EMPLOYEES (simple list) */}
-      <section className="clean-panel">
-        <div className="panel-head">
-          <h3>Employees</h3>
-          <div className="panel-meta">{employees.length} total</div>
         </div>
 
-        {showEmployees ? (
-          <ul className="emp-list">
-            {employees.map(emp => (
-              <li key={emp._id} className="emp-row">
-                <div className="emp-left">
-                  <div className="avatar">{emp.name?.charAt(0).toUpperCase()}</div>
-                  <div className="emp-info">
-                    <div className="emp-name">{emp.name}</div>
-                    <div className="emp-email">{emp.email}</div>
-                    <div className="emp-meta">
-                      Position: {emp.position || 'N/A'} • Role: {emp.role || 'N/A'}
-                    </div>
-                  </div>
-                </div>
-
-                <div className="emp-actions">
-                  <label className="small">Leave</label>
-                  <input
-                    type="number"
-                    value={emp.leave_quota || 0}
-                    onChange={(e) => {
-                      const updatedQuota = parseInt(e.target.value || '0', 10);
-                      setEmployees(prev =>
-                        prev.map(u =>
-                          u._id === emp._id ? { ...u, leave_quota: updatedQuota } : u
-                        )
-                      );
-                    }}
-                  />
-                  <button
-                    className="icon-only"
-                    title="Save"
-                    onClick={() => updateLeaveQuota(emp._id, emp.leave_quota)}
-                  >
-                    <i className="bi bi-check-lg" />
-                  </button>
-                  <button
-                    className="icon-only danger"
-                    title="Delete"
-                    onClick={() => handleDeleteEmployee(emp._id)}
-                  >
-                    <i className="bi bi-trash" />
-                  </button>
-                </div>
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <div className="muted">Employees hidden — click "Show Employees" to view.</div>
-        )}
-      </section>
-
+    
       {/* ATTENDANCE TABLE */}
       <section className="clean-panel">
         <div className="panel-head">
