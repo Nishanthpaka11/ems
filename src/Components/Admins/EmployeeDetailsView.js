@@ -72,6 +72,18 @@ const EmployeeDetailsView = () => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
+<<<<<<< HEAD
+=======
+     if (name === 'name') {
+    const nameRegex = /^[A-Za-z\s]*$/;
+    if (!nameRegex.test(value)) return;
+  }
+    
+    // Prevent typing more than max length for specific fields manually
+    if (name === 'phone' && value.length > 10) return;
+    if (name === 'aadhar' && value.length > 13) return;
+
+>>>>>>> b79938213a1102f4d8e812b7c929c8f2dc0d789e
     setEditedData(prev => ({
       ...prev,
       [name]: value
@@ -150,6 +162,75 @@ const EmployeeDetailsView = () => {
     }
   };
 
+<<<<<<< HEAD
+=======
+  // --- HELPER: Get Today's Date ---
+  // This is used for the input max attribute so the user can select up to TODAY
+  const getTodayDate = () => {
+    const today = new Date();
+    return today.toISOString().split('T')[0]; 
+  };
+
+  // --- VALIDATION LOGIC START ---
+  const validateForm = () => {
+    const { name, phone, email, department, position, currentAddress, permanentAddress, aadhar, dob } = editedData;
+
+    // 1. Mandatory Fields Check
+    if (!name || !phone || !email || !department || !position || !currentAddress || !permanentAddress || !aadhar || !dob) {
+      return "All fields are mandatory. Please fill in all details.";
+    }
+    // Name Validation (Only alphabets and spaces)
+const nameRegex = /^[A-Za-z\s]+$/;
+if (!nameRegex.test(name)) {
+  return "Name must contain only alphabets and spaces. Numbers or special characters are not allowed.";
+}
+
+
+    // 2. Phone Validation (Exactly 10 digits)
+    const phoneRegex = /^[0-9]{10}$/;
+    if (!phoneRegex.test(phone)) {
+      return "Phone number must be exactly 10 digits.";
+    }
+
+    // 3. Email Validation (Must be @gmail.com)
+    if (!email.toLowerCase().endsWith('@gmail.com')) {
+      return "Email must be a valid @gmail.com address.";
+    }
+
+    // 4. Age Validation (Strict 17 Years Check)
+    const today = new Date();
+    const birthDate = new Date(dob);
+    
+    // Check if the date is in the future
+    if (birthDate > today) {
+        return "Date of birth cannot be in the future.";
+    }
+
+    // Calculate Age
+    let age = today.getFullYear() - birthDate.getFullYear();
+    const monthDiff = today.getMonth() - birthDate.getMonth();
+    
+    // Adjust age if birthday hasn't happened yet this year
+    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+      age--;
+    }
+
+    // Error if younger than 17
+    if (age < 17) {
+      return "Age Validation Failed: Employee must be at least 17 years old.";
+    }
+
+    // 5. Aadhar Validation (Exactly 13 numbers)
+    const aadharRegex = /^[0-9]{13}$/; 
+    if (!aadharRegex.test(aadhar)) {
+      return "Aadhar number must be exactly 13 digits.";
+    }
+
+    return null; // No errors
+  };
+  // --- VALIDATION LOGIC END ---
+
+>>>>>>> b79938213a1102f4d8e812b7c929c8f2dc0d789e
   const handleSave = async () => {
     try {
       const token = localStorage.getItem('token');
@@ -169,7 +250,8 @@ const EmployeeDetailsView = () => {
           currentAddress: editedData.currentAddress,
           permanentAddress: editedData.permanentAddress,
           aadhar: editedData.aadhar,
-          dob: editedData.dob          
+          dob: editedData.dob ,
+          role: editedData.role           
         })
       });
 
@@ -324,6 +406,7 @@ const EmployeeDetailsView = () => {
             ) : (
               <>
                 <input
+<<<<<<< HEAD
                   type="text"
                   name="name"
                   value={editedData.name || ''}
@@ -331,6 +414,18 @@ const EmployeeDetailsView = () => {
                   className="edit-input-name"
                   placeholder="Full name"
                 />
+=======
+  type="text"
+  name="name"
+  value={editedData.name || ''}
+  onChange={handleChange}
+  className="edit-input-name"
+  placeholder="Full name (alphabets only)"
+  inputMode="text"
+/>
+
+                
+>>>>>>> b79938213a1102f4d8e812b7c929c8f2dc0d789e
                 <div className="edit-role-row">
                   <select
                     name="role"
