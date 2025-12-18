@@ -57,51 +57,93 @@ const AdminSettingsSection = () => {
     return regex.test(ip);
   };
 
+const parseTimeToMinutes = (timeStr) => {
+  // Handles both "HH:MM" and "HH:MM AM/PM"
+  const date = new Date(`1970-01-01 ${timeStr}`);
+  if (isNaN(date.getTime())) return NaN;
+
+  return date.getHours() * 60 + date.getMinutes();
+};
+
+const isValidWorkingTimeRange = (start, end) => {
+  if (!start || !end) return true;
+
+  const startMinutes = parseTimeToMinutes(start);
+  const endMinutes = parseTimeToMinutes(end);
+
+  if (isNaN(startMinutes) || isNaN(endMinutes)) return false;
+
+  const endOfDay = 23 * 60 + 59;
+
+  // ❌ Punch-out must be AFTER punch-in
+  if (endMinutes <= startMinutes) return false;
+
+  // ❌ Must be at least 1 hour difference
+  if (endMinutes - startMinutes < 60) return false;
+
+  // ❌ Must be same day (before 11:59 PM)
+  if (endMinutes > endOfDay) return false;
+
+  return true;
+};
+
+
+
   const handleSubmit = async (e) => {
-    e.preventDefault();
+  e.preventDefault();
 
-    // 1. Process the input into an array
-    const formattedIps = allowedIps
-      .split(',')
-      .map((ip) => ip.trim())
-      .filter(Boolean); // Removes empty strings caused by trailing commas
+  // 1. Process IPs
+  const formattedIps = allowedIps
+    .split(',')
+    .map((ip) => ip.trim())
+    .filter(Boolean);
 
-    // 2. Check if Empty
-    if (formattedIps.length === 0) {
-      showPopup('❌ Allowed IPs cannot be empty.', 'error');
-      return;
-    }
+  // 2. Empty check
+  if (formattedIps.length === 0) {
+    showPopup('❌ Allowed IPs cannot be empty.', 'error');
+    return;
+  }
 
-    // 3. Check for Invalid IPs
-    const invalidIps = formattedIps.filter(ip => !isValidIPv4(ip));
-    
-    if (invalidIps.length > 0) {
-      showPopup(`❌ Invalid IP format detected: ${invalidIps.join(', ')}`, 'error');
-      return; // STOP EXECUTION HERE
-    }
+  // 3. Invalid IP check
+  const invalidIps = formattedIps.filter(ip => !isValidIPv4(ip));
+  if (invalidIps.length > 0) {
+    showPopup(`❌ Invalid IP format detected: ${invalidIps.join(', ')}`, 'error');
+    return;
+  }
 
-    // 4. If Valid, Proceed to API
-    try {
-      const res = await authFetch(`${API_BASE}/api/admin/settings`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`
-        },
-        body: JSON.stringify({
-          allowed_ips: formattedIps,
-          working_hours_start: startTime,
-          working_hours_end: endTime
-        })
-      });
+  // 4️⃣ ⏱ TIME VALIDATION (FIX)
+ if (!isValidWorkingTimeRange(startTime, endTime)) {
+  showPopup(
+    '❌ Punch-out time must be at least 1 hour after punch-in and within the same day (up to 11:59 PM).',
+    'error'
+  );
+  return;
+}
 
-      if (!res.ok) throw new Error('Failed to update settings');
-      showPopup('✅ Settings updated successfully', 'success');
-    } catch (err) {
-      console.error('Error updating settings:', err);
-      showPopup('❌ Failed to update settings', 'error');
-    }
-  };
+  // 5. API CALL (only if all validations pass)
+  try {
+    const res = await authFetch(`${API_BASE}/api/admin/settings`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({
+        allowed_ips: formattedIps,
+        working_hours_start: startTime,
+        working_hours_end: endTime,
+      }),
+    });
+
+    if (!res.ok) throw new Error('Failed to update settings');
+
+    showPopup('✅ Settings updated successfully', 'success');
+  } catch (err) {
+    console.error('Error updating settings:', err);
+    showPopup('❌ Failed to update settings', 'error');
+  }
+};
+
 
   return (
     <div className="admin-settings-shell">
