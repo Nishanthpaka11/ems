@@ -17,6 +17,9 @@ const EmployeeDetailsView = () => {
 
   const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || process.env.REACT_APP_API_URL;
 
+  // Style for the mandatory asterisk
+  const asteriskStyle = { color: 'red', marginLeft: '4px', fontWeight: 'bold' };
+
   useEffect(() => {
     fetchEmployeeDetails();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -72,8 +75,6 @@ const EmployeeDetailsView = () => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-<<<<<<< HEAD
-=======
      if (name === 'name') {
     const nameRegex = /^[A-Za-z\s]*$/;
     if (!nameRegex.test(value)) return;
@@ -83,7 +84,6 @@ const EmployeeDetailsView = () => {
     if (name === 'phone' && value.length > 10) return;
     if (name === 'aadhar' && value.length > 12) return;
 
->>>>>>> b79938213a1102f4d8e812b7c929c8f2dc0d789e
     setEditedData(prev => ({
       ...prev,
       [name]: value
@@ -162,8 +162,6 @@ const EmployeeDetailsView = () => {
     }
   };
 
-<<<<<<< HEAD
-=======
   // --- HELPER: Get Today's Date ---
   // This is used for the input max attribute so the user can select up to TODAY
   const getTodayDate = () => {
@@ -230,8 +228,18 @@ if (!nameRegex.test(name)) {
   };
   // --- VALIDATION LOGIC END ---
 
->>>>>>> b79938213a1102f4d8e812b7c929c8f2dc0d789e
   const handleSave = async () => {
+    setError('');
+    setMessage('');
+
+    // Run Validation
+    const validationError = validateForm();
+    if (validationError) {
+      setError(validationError);
+      window.scrollTo(0, 0); 
+      return;
+    }
+
     try {
       const token = localStorage.getItem('token');
 
@@ -262,7 +270,6 @@ if (!nameRegex.test(name)) {
       setEditedData(data.employee);
       setMessage('Employee details updated successfully');
       setIsEditing(false);
-      setError('');
     } catch (err) {
       setError(err.message);
     }
@@ -405,16 +412,8 @@ if (!nameRegex.test(name)) {
               </>
             ) : (
               <>
+                {/* Name - Header Field */}
                 <input
-<<<<<<< HEAD
-                  type="text"
-                  name="name"
-                  value={editedData.name || ''}
-                  onChange={handleChange}
-                  className="edit-input-name"
-                  placeholder="Full name"
-                />
-=======
   type="text"
   name="name"
   value={editedData.name || ''}
@@ -425,7 +424,6 @@ if (!nameRegex.test(name)) {
 />
 
                 
->>>>>>> b79938213a1102f4d8e812b7c929c8f2dc0d789e
                 <div className="edit-role-row">
                   <select
                     name="role"
@@ -489,7 +487,10 @@ if (!nameRegex.test(name)) {
               <i className="bi bi-envelope-fill" />
             </div>
             <div className="detail-text">
-              <label>Email</label>
+              <label>
+                Email
+                {isEditing && <span style={asteriskStyle}>*</span>}
+              </label>
               {!isEditing ? (
                 <p>{employee.email || '—'}</p>
               ) : (
@@ -499,7 +500,7 @@ if (!nameRegex.test(name)) {
                   value={editedData.email || ''}
                   onChange={handleChange}
                   className="edit-field-input"
-                  placeholder="Email"
+                  placeholder="example@gmail.com"
                 />
               )}
             </div>
@@ -511,49 +512,62 @@ if (!nameRegex.test(name)) {
               <i className="bi bi-telephone-fill" />
             </div>
             <div className="detail-text">
-              <label>Phone</label>
+              <label>
+                Phone
+                {isEditing && <span style={asteriskStyle}>*</span>}
+              </label>
               {!isEditing ? (
-                <p>{employee.phone || '—'}</p>
+                <p>+91 {employee.phone || '—'}</p>
               ) : (
-                <input
-                  type="tel"
-                  name="phone"
-                  value={editedData.phone || ''}
-                  onChange={handleChange}
-                  className="edit-field-input"
-                  placeholder="Phone"
-                />
+                <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+                  <span style={{ fontWeight: 'bold', color: '#555' }}>+91</span>
+                  <input
+                    type="number"
+                    name="phone"
+                    value={editedData.phone || ''}
+                    onChange={handleChange}
+                    className="edit-field-input"
+                    placeholder="10 digit number"
+                    maxLength="10"
+                    onInput={(e) => {
+                      if (e.target.value.length > 10) e.target.value = e.target.value.slice(0, 10);
+                    }}
+                  />
+                </div>
               )}
             </div>
           </div>
 
-                    {/* Date of Birth */}
+          {/* Date of Birth */}
           <div className="detail-card">
             <div className="detail-icon detail-icon-date">
               <i className="bi bi-calendar-event" />
             </div>
             <div className="detail-text">
-             <label>Date of Birth</label>
-{!isEditing ? (
-  <p>
-    {employee.dob
-      ? employee.dob.slice(0, 10)
-      : '—'}
-  </p>
-) : (
-  <input
-    type="date"
-    name="dob"
-    value={editedData.dob ? editedData.dob.slice(0, 10) : ''}
-    onChange={handleChange}
-    className="edit-field-input"
-  />
-)}
+              <label>
+                Date of Birth
+                {isEditing && <span style={asteriskStyle}>*</span>}
+              </label>
+              {!isEditing ? (
+                <p>
+                  {employee.dob
+                    ? employee.dob.slice(0, 10)
+                    : '—'}
+                </p>
+              ) : (
+                <input
+                  type="date"
+                  name="dob"
+                  value={editedData.dob ? editedData.dob.slice(0, 10) : ''}
+                  onChange={handleChange}
+                  className="edit-field-input"
+                  required
+                  // Only block truly future dates (like 2026), but allow upto TODAY
+                  max={getTodayDate()} 
+                />
+              )}
             </div>
           </div>
-
-
-          
 
           {/* Position */}
           <div className="detail-card">
@@ -561,7 +575,10 @@ if (!nameRegex.test(name)) {
               <i className="bi bi-briefcase-fill" />
             </div>
             <div className="detail-text">
-              <label>Position</label>
+              <label>
+                Position
+                {isEditing && <span style={asteriskStyle}>*</span>}
+              </label>
               {!isEditing ? (
                 <p>{employee.position || '—'}</p>
               ) : (
@@ -583,7 +600,10 @@ if (!nameRegex.test(name)) {
               <i className="bi bi-geo-alt-fill" />
             </div>
             <div className="detail-text">
-              <label>Current address</label>
+              <label>
+                Current address
+                {isEditing && <span style={asteriskStyle}>*</span>}
+              </label>
               {!isEditing ? (
                 <p>{employee.currentAddress || '—'}</p>
               ) : (
@@ -605,7 +625,10 @@ if (!nameRegex.test(name)) {
               <i className="bi bi-house-fill" />
             </div>
             <div className="detail-text">
-              <label>Permanent address</label>
+              <label>
+                Permanent address
+                {isEditing && <span style={asteriskStyle}>*</span>}
+              </label>
               {!isEditing ? (
                 <p>{employee.permanentAddress || '—'}</p>
               ) : (
@@ -627,18 +650,24 @@ if (!nameRegex.test(name)) {
               <i className="bi bi-credit-card-2-front-fill" />
             </div>
             <div className="detail-text">
-              <label>Aadhar number</label>
+              <label>
+                Aadhar number
+                {isEditing && <span style={asteriskStyle}>*</span>}
+              </label>
               {!isEditing ? (
                 <p>{employee.aadhar || '—'}</p>
               ) : (
                 <input
-                  type="text"
+                  type="number"
                   name="aadhar"
                   value={editedData.aadhar || ''}
                   onChange={handleChange}
                   className="edit-field-input"
                   placeholder="Aadhar number"
                   maxLength="12"
+                  onInput={(e) => {
+                    if (e.target.value.length > 12) e.target.value = e.target.value.slice(0, 12);
+                  }}
                 />
               )}
             </div>
