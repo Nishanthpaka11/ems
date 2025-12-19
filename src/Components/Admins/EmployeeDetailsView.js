@@ -81,7 +81,7 @@ const EmployeeDetailsView = () => {
     
     // Prevent typing more than max length for specific fields manually
     if (name === 'phone' && value.length > 10) return;
-    if (name === 'aadhar' && value.length > 13) return;
+    if (name === 'aadhar' && value.length > 12) return;
 
 >>>>>>> b79938213a1102f4d8e812b7c929c8f2dc0d789e
     setEditedData(prev => ({
@@ -221,9 +221,9 @@ if (!nameRegex.test(name)) {
     }
 
     // 5. Aadhar Validation (Exactly 13 numbers)
-    const aadharRegex = /^[0-9]{13}$/; 
+    const aadharRegex = /^[0-9]{12}$/; 
     if (!aadharRegex.test(aadhar)) {
-      return "Aadhar number must be exactly 13 digits.";
+      return "Aadhar number must be exactly 12 digits.";
     }
 
     return null; // No errors
